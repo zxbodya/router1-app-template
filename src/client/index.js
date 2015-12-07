@@ -4,8 +4,7 @@ import ReactDOM from 'react-dom';
 
 import {Observable} from 'rx';
 
-import '../styles/main.sass';
-import '../styles/icons.scss';
+import './index.scss';
 
 import './ga';
 
