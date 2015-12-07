@@ -3,7 +3,6 @@
   "engines": {
     "node": ">=4.0.0"
   },
-  "main": "app/app.js",
   "scripts": {
     "dev-server": "babel-node -- ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack-dev-server.config.js --progress --colors --port 2992 --inline",
     "hot-dev-server": "babel-node -- ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack-hot-dev-server.config.js --hot --progress --colors --port 2992 --inline",
