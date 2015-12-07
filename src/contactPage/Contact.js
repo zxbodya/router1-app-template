@@ -1,5 +1,4 @@
-import React, {Component} from 'react';
-import Link from 'router1-react/lib/Link';
+import React from 'react';
 
 import Layout from './../views/Layout';
 

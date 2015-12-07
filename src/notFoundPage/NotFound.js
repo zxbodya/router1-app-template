@@ -13,6 +13,7 @@ function NotFound() {
         <li>a mistyped address</li>
         <li>an out-of-date link</li>
       </ul>
+      <Link route="home">Go to home page</Link>
     </div>
   );
 }
