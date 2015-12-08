@@ -6,7 +6,7 @@ import {Observable} from 'rx';
 
 import './index.scss';
 
-import './ga';
+// import './ga';
 
 import raf from 'raf';
 
@@ -143,5 +143,5 @@ router.hashChange.forEach(({hash, source})=> {
 router
   .renderResult()
   .forEach(()=> {
-    window.ga('send', 'pageview', window.location.pathname);
+    // window.ga('send', 'pageview', window.location.pathname);
   });
