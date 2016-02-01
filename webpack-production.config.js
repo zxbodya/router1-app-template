@@ -1,6 +1,7 @@
 import makeWebpackConfig from './make-webpack-config';
 
-export default [
+
+const config = [
   makeWebpackConfig({
     // commonsChunk: true,
     longTermCaching: true,
@@ -12,3 +13,6 @@ export default [
     prerender: true,
   }),
 ];
+
+export default config;
+module.exports = config;

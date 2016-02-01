@@ -176,7 +176,9 @@ export default function(options) {
       loaders: [
         {
           test: /\.jsx?$/,
-          loaders: options.hotComponents ? ['react-hot', 'babel?optional=runtime'] : ['babel?optional=runtime'],
+          loaders: options.hotComponents
+            ? ['react-hot', 'babel?presets[]=react&presets[]=es2015&plugins[]=transform-runtime&plugins[]=transform-object-rest-spread']
+            : ['babel?presets[]=react&presets[]=es2015&plugins[]=transform-runtime&plugins[]=transform-object-rest-spread'],
           exclude: /node_modules/,
         },
       ]

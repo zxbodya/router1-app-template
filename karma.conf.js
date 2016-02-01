@@ -1,7 +1,7 @@
 // Karma configuration
 // Generated on Mon Mar 23 2015 07:31:02 GMT+0200 (EET)
 
-export default function(config) {
+module.exports = function(config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -69,7 +69,7 @@ export default function(config) {
         loaders: [
           {
             test: /\.jsx?$/,
-            loaders: ['babel?optional=runtime'],
+            loaders: ['babel?presets[]=react&presets[]=es2015'],
             exclude: /node_modules/,
           },
         ],
@@ -90,4 +90,5 @@ export default function(config) {
       require('karma-webpack'),
     ],
   });
-}
+};
+
