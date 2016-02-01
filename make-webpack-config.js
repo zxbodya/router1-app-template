@@ -100,25 +100,13 @@ export default function(options) {
   ];
   if (options.prerender) {
     aliasLoader['react-proxy$'] = 'react-proxy/unavailable';
+    const nodeModules = require('fs').readdirSync('node_modules').filter(x=>x !== '.bin');
+
     externals.push(
       {
         '../build/stats.json': 'commonjs ../stats.json',
       },
-      /^react(\/.*)?$/,
-      /^reflux(\/.*)?$/,
-      'nodemailer',
-      'nodemailer-smtp-transport',
-      'superagent',
-      'express',
-      'async',
-      'rx',
-      'path',
-      'core-js',
-      'debug',
-      'morgan',
-      'body-parser',
-      'lodash',
-      /^babel-runtime(\/.*)?$/
+      ...nodeModules
     );
     plugins.push(new webpack.optimize.LimitChunkCountPlugin({maxChunks: 1}));
     if (options.sourceMapSupport) {
