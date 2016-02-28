@@ -1,7 +1,7 @@
 import Contact from './Contact';
 import createContainer from 'rx-react-container';
 
-export default function() {
+export default function () {
   return {
     meta: {
       title: 'Contact us',

@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 
 const app = express();
 
-export default function(options) {
+export default function (options) {
   const prerender = options.prerender;
 
   const stats = require('../build/stats.json');
@@ -19,7 +19,7 @@ export default function(options) {
 
 
   app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({extended: true}));
+  app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use('/_assets', express.static(path.join('build', 'public'), {
     maxAge: '200d', // We can cache them as they include hashes
@@ -41,14 +41,14 @@ export default function(options) {
   // ));
 
 
-  app.get('/*', (req, res)=> {
-    function sendHtml(error, {view, meta, status, redirect}) {
+  app.get('/*', (req, res) => {
+    function sendHtml(error, { view, meta, status, redirect }) {
       if (error) {
         res.status(500);
-        res.render('500', {url: req.url});
+        res.render('500', { url: req.url });
       } else {
         if (redirect) {
-          res.writeHead(status || 303, {'Location': redirect});
+          res.writeHead(status || 303, { Location: redirect });
           res.end();
         } else {
           res.status(status || 200);

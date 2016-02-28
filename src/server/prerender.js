@@ -10,7 +10,7 @@ import Router from 'router1/lib/Router';
 import RouterContext from 'router1-react/lib/RouterContext';
 
 import toObservable from '../utils/toObservable';
-import {Observable} from 'rx';
+import { Observable } from 'rx';
 
 export default function prerender(requestPath, cb) {
   const history = createServerHistory(requestPath);
@@ -18,17 +18,17 @@ export default function prerender(requestPath, cb) {
   const router = new Router({
     history,
     routes,
-    render: (routingResult)=> {
+    render: (routingResult) => {
       const handler = routingResult.handler || notFoundHandler;
 
       return toObservable(handler(routingResult.params))
-        .flatMap(({view, redirect, status, meta})=> {
+        .flatMap(({ view, redirect, status, meta }) => {
           if (redirect) {
-            return Observable.return({redirect, status});
+            return Observable.return({ redirect, status });
           }
           return view.map(renderApp => {
             const html = ReactDOM.renderToString(
-              <RouterContext router={router} render={renderApp}/>
+              <RouterContext router={router} render={renderApp} />
             );
             return {
               view: html,
@@ -43,7 +43,7 @@ export default function prerender(requestPath, cb) {
   router
     .renderResult()
     .first()
-    .forEach((data)=> {
+    .forEach((data) => {
       cb(null, data);
-    }, error=>cb(error));
+    }, error => cb(error));
 }

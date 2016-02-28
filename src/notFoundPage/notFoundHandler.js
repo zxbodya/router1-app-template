@@ -1,7 +1,7 @@
 import NotFound from './NotFound';
 import createContainer from 'rx-react-container';
 
-export default function() {
+export default function () {
   return {
     status: 404,
     meta: {
