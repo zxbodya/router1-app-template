@@ -8,9 +8,10 @@
     "hot-dev-server": "babel-node --presets es2015 -- ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack-hot-dev-server.config.js --hot --progress --colors --port 2992 --inline",
     "build": "babel-node --presets es2015 -- ./node_modules/webpack/bin/webpack.js --config webpack-production.config.js --progress --profile --colors --bail",
     "lint": "eslint ./src/",
-    "watch-server": "babel-node --presets es2015 -- ./node_modules/webpack/bin/webpack.js --watch --config webpack-watch-server.config --progress --profile --colors",
-    "start-dev": "pm2-dev ./build/server/dev.js",
-    "start": "pm2-dev ./build/server/prod.js",
+    "watch-dev": "babel-node --presets es2015 -- dev-server.js",
+    "watch-prod": "babel-node --presets es2015 -- dev-server.js --with-prerender",
+    "start-dev": "./build/server/dev.js",
+    "start": "./build/server/prod.js",
     "test": "karma start"
   },
   "devDependencies": {
@@ -40,6 +41,7 @@
     "karma-sourcemap-loader": "^0.3.5",
     "karma-webpack": "^1.5.1",
     "node-sass": "^3.7.0",
+    "nodemon": "^1.9.2",
     "null-loader": "^0.1.0",
     "postcss-loader": "^0.9.1",
     "react-hot-loader": "^1.2.7",

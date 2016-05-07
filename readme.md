@@ -1,60 +1,49 @@
-Router1 Application template
+React + RxJS + Router1 Application template
 ========================
 
-Requirements:
-
-1. nodejs
-2. pm2
-
-## Setup 
-
-install dependencies: `npm i`
-
-## Development server
-
-
-#### 1. start the webpack-dev-server:
-
-watch and recompile client-side part
-
-`npm run dev-server` 
-
-or with hot module reload:
-
-`npm run hot-dev-server`
+Application starter template.
+Can be used for both: single page and isomorphic applications.
  
+Following libraries are used:
 
-#### 2. watcher for server script
+1. ReactJS
+2. RxJS
+3. ExpressJS
+4. Router1  + Router1 React
 
-`npm run watch-server`
+And tools:
 
-
-#### 3. start app server
+1. Webpack - to bundle all resources
+2. BabelJS - to support es2015 syntax 
+3. Node SASS - to compile 
+4. PostCSS
+5. Nodemon
  
-- `npm run start-dev` (without server side rendering)
-- `npm run start` (with server side rendering)
+## Development environment setup
 
-#### 4. open this url in your browser
-
-http://localhost:8080/
-
-It will automatically recompile and refresh the page when files are changed.
+1. install dependencies using npm
+2. start the webpack-dev-server to serve client-side assets with debug info
+    -  `npm run dev-server` 
+    -  or `npm run hot-dev-server` if you want with hot module reload
+2. start server app, with automatic recompile and restart when something changes
+    - `npm run watch-dev`
+    - `npm run watch-prod`, if you need server-side rendering
+3. open this url in your browser: `http://localhost:8080/`
 
 ## Production compilation and server
 
-build the client bundle and the prerendering bundle
+Build sources:
 
-`npm run build`
+- `npm run build`
 
-start the node.js server in production mode
+Start server:
 
-`node ./build/server/prod` (isomorphic rendering)
-`node ./build/server/dev` (SPA)
+- `node ./build/server/prod` (isomorphic rendering)
+- `node ./build/server/dev` (SPA)
 
 ## Legacy static assets
 
 Asserts in `public` are also served.
-
 
 ## Build visualization
 
