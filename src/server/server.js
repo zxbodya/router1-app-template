@@ -41,8 +41,12 @@ export default function (options) {
   // ));
 
 
+  app.get('/favicon.ico', (req, res) => {
+    res.status(404).send();
+  });
+
   app.get('/*', (req, res) => {
-    function sendHtml(error, { view, meta, status, redirect }) {
+    function sendHtml(error, { view, meta, status, redirect } = {}) {
       if (error) {
         res.status(500);
         res.render('500', { url: req.url });
@@ -68,6 +72,6 @@ export default function (options) {
   });
   const port = +(process.env.PORT || options.defaultPort || 8080);
   app.listen(port, () => {
-    console.log('Server listening on port ' + port);
+    console.log(`Server listening on port ${port}`);
   });
 }

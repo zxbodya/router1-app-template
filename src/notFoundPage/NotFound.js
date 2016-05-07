@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'router1-react/lib/Link';
+import { Link } from 'router1-react';
 
 function NotFound() {
   return (

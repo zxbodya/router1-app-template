@@ -1,4 +1,4 @@
-import Link from 'router1-react/lib/Link';
+import { Link } from 'router1-react';
 import React from 'react';
 
 function Layout(props) {

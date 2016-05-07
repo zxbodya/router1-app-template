@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 
-import createServerHistory from 'router1/lib/createServerHistory';
+import { createServerHistory, Router } from 'router1';
 
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 
 import routes from '../routes';
-import Router from 'router1/lib/Router';
-import RouterContext from 'router1-react/lib/RouterContext';
+
+import { RouterContext } from 'router1-react';
 
 import toObservable from '../utils/toObservable';
 import { Observable } from 'rx';
@@ -19,7 +19,7 @@ export default function prerender(requestPath, cb) {
     history,
     routes,
     render: (routingResult) => {
-      const handler = routingResult.handler || notFoundHandler;
+      const handler = routingResult.handlers[0] || notFoundHandler;
 
       return toObservable(handler(routingResult.params))
         .flatMap(({ view, redirect, status, meta }) => {

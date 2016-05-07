@@ -10,15 +10,14 @@ import './index.scss';
 
 import raf from 'raf';
 
-import createBrowserHistory from 'router1/lib/createBrowserHistory';
+import { createBrowserHistory, Router } from 'router1';
+import { RouterContext } from 'router1-react';
 
 const history = createBrowserHistory();
 
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 
 import routes from '../routes';
-import Router from 'router1/lib/Router';
-import RouterContext from 'router1-react/lib/RouterContext';
 
 import toObservable from '../utils/toObservable';
 
@@ -40,7 +39,7 @@ const router = new Router({
   render: (routingResult) => {
     cancelScrollAnimation();
 
-    const handler = routingResult.handler || notFoundHandler;
+    const handler = routingResult.handlers[0] || notFoundHandler;
 
     const locationSource = routingResult.location.source;
     const locationHash = routingResult.location.hash;
