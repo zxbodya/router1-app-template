@@ -1,17 +1,17 @@
 {
   "private": true,
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6.0.0"
   },
   "scripts": {
-    "dev-server": "babel-node --presets es2015 -- ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack-dev-server.config.js --progress --colors --port 2992 --inline",
-    "hot-dev-server": "babel-node --presets es2015 -- ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack-hot-dev-server.config.js --hot --progress --colors --port 2992 --inline",
-    "build": "babel-node --presets es2015 -- ./node_modules/webpack/bin/webpack.js --config webpack-production.config.js --progress --profile --colors --bail",
+    "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --progress --colors --port 2992 --inline",
+    "hot-dev-server": "webpack-dev-server --config webpack-hot-dev-server.config.js --hot --progress --colors --port 2992 --inline",
+    "build": "webpack --config webpack-production.config.js --progress --profile --colors --bail",
     "lint": "eslint ./src/",
-    "watch-dev": "babel-node --presets es2015 -- dev-server.js",
-    "watch-prod": "babel-node --presets es2015 -- dev-server.js --with-prerender",
-    "start-dev": "./build/server/dev.js",
-    "start": "./build/server/prod.js",
+    "watch-dev": "node dev-server.js",
+    "watch-prod": "node dev-server.js --with-prerender",
+    "start-dev": "node ./build/server/dev.js",
+    "start": "node ./build/server/prod.js",
     "test": "karma start"
   },
   "devDependencies": {

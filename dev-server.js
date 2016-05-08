@@ -1,11 +1,11 @@
-import path from 'path';
-import webpack from 'webpack';
-import WebpackDevServer from 'webpack-dev-server';
-import nodemon from 'nodemon';
+const path = require('path');
+const webpack = require('webpack');
+const WebpackDevServer = require('webpack-dev-server');
+const nodemon = require('nodemon');
 
-import { Observable, ReplaySubject, Subject } from 'rx';
+const { Observable, ReplaySubject, Subject } = require('rx');
 
-import net from 'net';
+const net = require('net');
 
 function waitForPort(port, address) {
   return Observable.create(observer => {
@@ -43,8 +43,8 @@ const devPort = 2992;
 const appPort = 8080;
 
 
-import devServerConfig from './webpack-dev-server.config.js';
-import backendConfig from './webpack-watch-server.config.js';
+const devServerConfig = require('./webpack-dev-server.config.js');
+const backendConfig = require('./webpack-watch-server.config.js');
 
 const devClient = [`${require.resolve('webpack-dev-server/client/')}?${protocol}://${host}:${devPort}`];
 
