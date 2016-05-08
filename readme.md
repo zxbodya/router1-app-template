@@ -22,10 +22,7 @@ And tools:
 ## Development environment setup
 
 1. install dependencies using npm
-2. start the webpack-dev-server to serve client-side assets with debug info
-    -  `npm run dev-server` 
-    -  or `npm run hot-dev-server` if you want with hot module reload
-2. start server app, with automatic recompile and restart when something changes
+1. start server app, with automatic recompile and reload when something changes
     - `npm run watch-dev`
     - `npm run watch-prod`, if you need server-side rendering
 3. open this url in your browser: `http://localhost:8080/`
