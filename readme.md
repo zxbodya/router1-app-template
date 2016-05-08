@@ -30,6 +30,11 @@ And tools:
 
 (there is alternative options, to start everything separately - check `package.json` for more details)
 
+To customize host and ports used by application - use environment variables:
+- `HOST` - host where application is running, `localhost` by default 
+- `DEV_SERVER_PORT` - port used by dev server, `2992` by default 
+- `PORT` - port user by application, `8080` by default 
+
 ## Production compilation and server
 
 Build sources:

@@ -38,9 +38,9 @@ function waitForPort(port, address) {
 
 
 const protocol = 'http';
-const host = 'localhost';
-const devPort = 2992;
-const appPort = 8080;
+const host = process.env.HOST || 'localhost';
+const devPort = process.env.DEV_SERVER_PORT || 2992;
+const appPort = process.env.PORT || 8080;
 
 
 const devServerConfig = require('./webpack-dev-server.config.js');

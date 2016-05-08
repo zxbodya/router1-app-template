@@ -64,8 +64,12 @@ module.exports = function (options) {
   const modulesDirectories = ['web_modules', 'node_modules'];
   const extensions = ['', '.web.js', '.js', '.jsx'];
   const root = path.join(__dirname, 'app');
+
+  const host = process.env.HOST || 'localhost';
+  const devPort = process.env.DEV_SERVER_PORT || 2992;
+
   const publicPath = options.devServer ?
-    'http://localhost:2992/_assets/' :
+    `http://${host}:${devPort}/_assets/` :
     '/_assets/';
 
   const output = {
