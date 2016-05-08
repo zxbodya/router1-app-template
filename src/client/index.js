@@ -66,6 +66,7 @@ const router = new Router({
         );
       })
       .do(() => {
+        if (routingResult.location.state.noscroll) return;
         // should scroll only on this location sources
         if (locationSource === 'push' || locationSource === 'replace') {
           let target;
