@@ -76,15 +76,12 @@ const devServer = new WebpackDevServer(frontEndCompiler, {
 
 const notifications$ = new Subject();
 /*eslint-disable */
-const sendStats = devServer._sendStats;
+const sockWrite = devServer.sockWrite;
 
-devServer._sendStats = (socket, stats, force) => {
-  sendStats.call(this, {
-    emit(message) {
-      notifications$.onNext({ socket, message });
-    },
-  }, stats, force);
+devServer.sockWrite = (sockets, type, data) => {
+  notifications$.onNext({ sockets, type, data });
 };
+
 /*eslint-enable */
 
 devServer.listen(devPort, host, () => {
@@ -180,9 +177,9 @@ notifications$
     emit.forEach(
       v => {
         try {
-          const { socket, message } = v;
-          socket.emit(message);
-          console.log('done, ', message);
+          const { sockets, type, data } = v;
+          sockWrite(sockets, type, data);
+          console.log('websocket notification, type:', type);
         } catch (e) {
           console.log('skip, websocket notification');
         }

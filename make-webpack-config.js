@@ -218,4 +218,4 @@ module.exports = function (options) {
       },
     },
   };
-}
+};
