@@ -3,9 +3,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { Observable } from 'rx';
-
-// import './ga';
-
 import raf from 'raf';
 
 import { createBrowserHistory, Router } from 'router1';
