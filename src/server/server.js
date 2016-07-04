@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
 
+import clientEnvVars from './../client/envVars';
+
 const app = express();
 
 export default function (options) {
@@ -45,6 +47,15 @@ export default function (options) {
     res.status(404).send();
   });
 
+  const envParams = {};
+
+  for (let i = 0, l = clientEnvVars.length; i < l; i++) {
+    const key = clientEnvVars[i];
+    if (process.env.hasOwnProperty(key)) {
+      envParams[key] = process.env[key];
+    }
+  }
+
   app.get('/*', (req, res) => {
     function sendHtml(error, { view, meta, status, redirect } = {}) {
       if (error) {
@@ -63,6 +74,7 @@ export default function (options) {
             scriptsUrl: SCRIPT_URL,
             ieScriptsUrl: IE_SCRIPT_URL,
             stylesUrl: STYLE_URL,
+            envParams,
           });
         }
       }

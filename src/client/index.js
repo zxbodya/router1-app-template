@@ -1,3 +1,4 @@
+import {} from './env';
 import './index.scss';
 
 import { router } from './router';

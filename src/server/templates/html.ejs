@@ -25,6 +25,10 @@
 
 <div id="app"><%- appHtml %></div>
 
+<script>
+  window.envParams = <%- JSON.stringify(envParams) %>;
+</script>
+
 <!--[if lt IE 9]>
 <script src="<%- ieScriptsUrl %>"></script>
 <![endif]-->
