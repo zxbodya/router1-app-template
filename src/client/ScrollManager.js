@@ -1,5 +1,4 @@
 import raf from 'raf';
-import { Observable } from 'rx';
 
 /*eslint-disable */
 const easeInOutQuad = (t, b, c, d) => {
@@ -12,69 +11,72 @@ const easeInOutQuad = (t, b, c, d) => {
 };
 /*eslint-enable */
 
+const noop = () => 0;
+
 export class ScrollManager {
   constructor(options = {}) {
-    this.scrollAnimationDispose = null;
+    this.cancelScrollAnimation = noop;
     this.easing = options.easing || easeInOutQuad;
     this.duration = options.duration || 400;
   }
 
-  cancelScrollAnimation() {
-    if (this.scrollAnimationDispose) {
-      this.scrollAnimationDispose.dispose();
-    }
-  }
+  animateScroll(left, top, done) {
+    this.cancelScrollAnimation();
 
-  animateScroll(left, top) {
     const startTime = Date.now();
     const startTop = window.pageYOffset;
     const startLeft = window.pageXOffset;
 
-    let cancel = false;
+    this.cancel = false;
 
-    return Observable.create((observer) => {
-      console.log('create');
-      let id;
-      const animate = () => {
-        console.log('step');
-        if (cancel) return;
-        const elapsed = Date.now() - startTime;
-        if (this.duration <= elapsed) {
-          window.scrollTo(left, top);
-          observer.onCompleted();
-        } else {
-          window.scrollTo(
-            this.easing(elapsed, startLeft, left - startLeft, this.duration),
-            this.easing(elapsed, startTop, top - startTop, this.duration)
-          );
-          id = raf(animate);
-        }
-      };
+    let id;
+    const animate = () => {
+      if (this.cancel) return;
+      const elapsed = Date.now() - startTime;
+      if (this.duration <= elapsed) {
+        window.scrollTo(left, top);
+        this.cancelScrollAnimation = noop;
+        done();
+      } else {
+        window.scrollTo(
+          this.easing(elapsed, startLeft, left - startLeft, this.duration),
+          this.easing(elapsed, startTop, top - startTop, this.duration)
+        );
+        id = raf(animate);
+      }
+    };
 
-      animate();
-      return () => {
-        cancel = true;
-        raf.cancel(id);
-      };
-    });
+    animate();
+
+    this.cancelScrollAnimation = () => {
+      this.cancel = true;
+      raf.cancel(id);
+      this.cancelScrollAnimation = noop;
+      done();
+    };
   }
 
-  scrollTo(top, left, animate) {
+  scrollTo(left, top, animate) {
     if (animate) {
-      this.scrollAnimationDispose = this.animateScroll(left, top)
-        .takeUntil(Observable.fromEvent(window, 'wheel'))
-        .subscribe();
+      const onWheelListener = () => this.cancelScrollAnimation();
+      window.addEventListener('wheel', onWheelListener);
+      this.animateScroll(left, top, () => {
+        window.removeEventListener('wheel', onWheelListener);
+      });
     } else {
-      setTimeout(() => {
+      this.cancelScrollAnimation();
+      raf(() => {
         window.scrollTo(left, top);
       });
     }
   }
 
   scrollToElement(target, animate) {
+    const documentElement = target.ownerDocument.documentElement;
+    const boundingClientRect = target.getBoundingClientRect();
     this.scrollTo(
-      window.pageXOffset + target.getBoundingClientRect().left,
-      window.pageYOffset + target.getBoundingClientRect().top,
+      window.pageXOffset + boundingClientRect.left - documentElement.clientLeft,
+      window.pageYOffset + boundingClientRect.top - documentElement.clientTop,
       animate
     );
   }
@@ -85,6 +87,7 @@ export class ScrollManager {
       this.scrollToElement(target, animate);
       return true;
     }
+    this.cancelScrollAnimation();
     return false;
   }
 }
