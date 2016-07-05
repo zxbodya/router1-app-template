@@ -3,36 +3,27 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { Observable } from 'rx';
-import raf from 'raf';
 
 import { createBrowserHistory, Router } from 'router1';
 import { RouterContext } from 'router1-react';
 
-const history = createBrowserHistory();
-
-import notFoundHandler from '../notFoundPage/notFoundHandler';
+import toObservable from '../utils/toObservable';
 
 import routes from '../routes';
-
-import toObservable from '../utils/toObservable';
+import notFoundHandler from '../notFoundPage/notFoundHandler';
 
 const renderObservable = Observable.fromCallback(ReactDOM.render);
 const appElement = document.getElementById('app');
 
-let scrollAnimationDispose = null;
-
-const cancelScrollAnimation = () => {
-  if (scrollAnimationDispose) {
-    scrollAnimationDispose.dispose();
-  }
-};
-
+const history = createBrowserHistory();
+import { ScrollManager } from './ScrollManager';
+const sm = new ScrollManager();
 
 const router = new Router({
   history,
   routes,
   render: (routingResult) => {
-    cancelScrollAnimation();
+    sm.cancelScrollAnimation();
 
     const handler = routingResult.handlers[0] || notFoundHandler;
 
@@ -70,71 +61,21 @@ const router = new Router({
           }
 
           if (target) {
-            // scrollto anchor position
-            setTimeout(() => {
-              window.scrollTo(0, window.pageYOffset + target.getBoundingClientRect().top);
-            });
+            sm.scrollToElement(target, false);
           } else {
-            setTimeout(() => {
-              window.scrollTo(0, 0);
-            });
+            sm.scrollTo(0, 0, false);
           }
         }
       });
   },
 });
 
-/*eslint-disable */
-const easing = (t, b, c, d) => {
-  // t: current time, b: begInnIng value, c: change In value, d: duration
-  // Robert Penner's easeInOutQuad - http://robertpenner.com/easing/
-  t /= d / 2;
-  if (t < 1) return c / 2 * t * t + b;
-  t--;
-  return -c / 2 * (t * (t - 2) - 1) + b;
-};
-/*eslint-enable */
-
-function animateScroll(top) {
-  const duration = 400;
-  const startTime = Date.now();
-  const startTop = window.pageYOffset;
-  let cancel = false;
-
-  return Observable.create((observer) => {
-    let id;
-    const animate = () => {
-      if (cancel) return;
-      const elapsed = Date.now() - startTime;
-      if (duration <= elapsed) {
-        window.scrollTo(0, top);
-        observer.onCompleted();
-      } else {
-        window.scrollTo(0, easing(elapsed, startTop, top - startTop, duration));
-        // linear scroll speed
-        // const ratio = elapsed / duration;
-        // window.scrollTo(0, startTop * (1 - ratio) + top * ratio);
-        id = raf(animate);
-      }
-    };
-
-    animate();
-    return () => {
-      cancel = true;
-      raf.cancel(id);
-    };
-  });
-}
 
 router.hashChange.forEach(({ hash, source }) => {
-  cancelScrollAnimation();
+  console.log(hash, source);
+  sm.cancelScrollAnimation();
   if (source !== 'push' && source !== 'replace') return;
-  const target = document.getElementById(hash.substr(1));
-  if (target) {
-    scrollAnimationDispose = animateScroll(window.pageYOffset + target.getBoundingClientRect().top)
-      .takeUntil(Observable.fromEvent(window, 'wheel'))
-      .subscribe();
-  }
+  sm.scrollToAnchor(hash, true);
 });
 
 export { router };

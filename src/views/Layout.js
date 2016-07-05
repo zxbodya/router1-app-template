@@ -3,7 +3,7 @@ import React from 'react';
 
 function Layout(props) {
   return (
-    <div>
+    <div className="container">
       <ul>
         <li>
           <Link route="home" activeClassName="active">Home</Link>
