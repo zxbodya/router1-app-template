@@ -66,6 +66,9 @@ export default function (options) {
     function sendHtml(error, { view, meta, status, redirect } = {}) {
       if (error) {
         res.status(500);
+        // todo: improve this
+        // send error to client, at least in dev mode
+        console.error(error);
         res.render('500', { url: req.url });
       } else {
         if (redirect) {

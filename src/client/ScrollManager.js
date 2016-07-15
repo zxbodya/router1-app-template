@@ -82,7 +82,7 @@ export class ScrollManager {
   }
 
   scrollToAnchor(anchor, animate) {
-    const target = document.getElementById(anchor.substr(1));
+    const target = document.getElementById(anchor);
     if (target) {
       this.scrollToElement(target, animate);
       return true;

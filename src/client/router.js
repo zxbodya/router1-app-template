@@ -17,68 +17,111 @@ import { ScrollManager } from './ScrollManager';
 const renderObservable = Observable.fromCallback(ReactDOM.render);
 const appElement = document.getElementById('app');
 
-const history = createBrowserHistory();
-
 const sm = new ScrollManager();
 
-const router = new Router({
-  history,
-  routes,
-  render: (routingResult) => {
-    sm.cancelScrollAnimation();
+const onRendered = (routingResult) => {
+  // side effects after state was rendered
+  const locationSource = routingResult.location.source;
+  const locationHash = routingResult.location.hash;
 
-    const handler = routingResult.handlers[0] || notFoundHandler;
+  if (routingResult.location.state.noscroll) return;
+  // should scroll only on this location sources
+  if (locationSource === 'push' || locationSource === 'replace') {
+    let target;
+    if (locationHash !== '') {
+      target = document.getElementById(locationHash);
+    }
 
-    const onRendered = () => {
-      const locationSource = routingResult.location.source;
-      const locationHash = routingResult.location.hash;
+    if (target) {
+      sm.scrollToElement(target, false);
+    } else {
+      sm.scrollTo(0, 0, false);
+    }
+  }
+};
 
-      if (routingResult.location.state.noscroll) return;
-      // should scroll only on this location sources
-      if (locationSource === 'push' || locationSource === 'replace') {
-        let target;
-        if (locationHash !== '' && locationHash !== '#') {
-          target = document.getElementById(locationHash.substr(1));
-        }
+function combineHandlersChain(handlers) {
+  return handlers[0];
+}
 
-        if (target) {
-          sm.scrollToElement(target, false);
-        } else {
-          sm.scrollTo(0, 0, false);
-        }
+const hashChange = ({ hash, source }) => {
+  sm.cancelScrollAnimation();
+  if (source !== 'push' && source !== 'replace') return;
+  sm.scrollToAnchor(hash, true);
+};
+
+function handlerFromDef(handler, transition) {
+  let renderable = null;
+  return {
+    load() {
+      return toObservable(handler(transition.params))
+        .take(1)
+        .do(l => {
+          renderable = l;
+        })
+        .toPromise();
+    },
+    hashChange,
+    onBeforeUnload() {
+      return '';
+    },
+    render() {
+      if (!renderable) {
+        throw new Error('Route handler is not loaded');
       }
-    };
+      const { redirect, view, meta } = renderable;
+      if (redirect) {
+        transition.forward(redirect);
+        return Observable.empty();
+      }
 
-    return toObservable(handler(routingResult.params))
-      .flatMap(({ view, meta, redirect }) => {
-        if (redirect) {
-          history.replace(redirect);
-          return Observable.empty();
-        }
+      document.title = meta.title || '';
 
-        document.title = meta.title || '';
+      // $('meta[name=description]').text(meta.description || '');
 
-        // $('meta[name=description]').text(meta.description || '');
-
-        return view.flatMap(renderApp =>
+      return view.flatMap(
+        renderApp =>
           renderObservable(
             <RouterContext
-              router={router}
+              router={transition.router}
               render={renderApp}
             />,
             appElement
           )
-        );
-      })
-      .do(onRendered);
+      )
+        .do(() => {
+          if (renderable.onBeforeUnload) {
+            this.onBeforeUnload = renderable.onBeforeUnload;
+          }
+          onRendered(transition);
+        });
+    },
+  };
+}
+
+const router = new Router({
+  history: createBrowserHistory(),
+  routes,
+  createHandler(transition) {
+    if (transition.route.handlers.length) {
+      return handlerFromDef(
+        combineHandlersChain(transition.route.handlers),
+        transition);
+    }
+
+    return handlerFromDef(
+      notFoundHandler,
+      transition);
   },
 });
 
 
-router.hashChange.forEach(({ hash, source }) => {
-  sm.cancelScrollAnimation();
-  if (source !== 'push' && source !== 'replace') return;
-  sm.scrollToAnchor(hash, true);
-});
+window.onbeforeunload = (e) => {
+  const returnValue = router.onBeforeUnload();
+  if (returnValue) {
+    e.returnValue = returnValue;
+    return returnValue;
+  }
+};
 
 export { router };
