@@ -51,52 +51,44 @@ const hashChange = ({ hash, source }) => {
 };
 
 function handlerFromDef(handler, transition) {
-  let renderable = null;
-  return {
-    load() {
-      return toObservable(handler(transition.params))
-        .take(1)
-        .do(l => {
-          renderable = l;
-        })
-        .toPromise();
-    },
-    hashChange,
-    onBeforeUnload() {
-      return '';
-    },
-    render() {
-      if (!renderable) {
-        throw new Error('Route handler is not loaded');
-      }
-      const { redirect, view, meta } = renderable;
-      if (redirect) {
-        transition.forward(redirect);
-        return Observable.empty();
-      }
+  return toObservable(handler(transition.params))
+    .map(renderable => ({
+      hashChange,
+      onBeforeUnload() {
+        return '';
+      },
+      render() {
+        if (!renderable) {
+          throw new Error('Route handler is not loaded');
+        }
+        const { redirect, view, meta } = renderable;
+        if (redirect) {
+          transition.forward(redirect);
+          return Observable.empty();
+        }
 
-      document.title = meta.title || '';
+        document.title = meta.title || '';
 
-      // $('meta[name=description]').text(meta.description || '');
+        // $('meta[name=description]').text(meta.description || '');
 
-      return view.flatMap(
-        renderApp =>
-          renderObservable(
-            <RouterContext
-              router={transition.router}
-              render={renderApp}
-            />,
-            appElement
-          )
-      )
-        .do(() => {
-          if (renderable.onBeforeUnload) {
-            this.onBeforeUnload = renderable.onBeforeUnload;
-          }
-          onRendered(transition);
-        });
-    },
-  };
+        return view.flatMap(
+          renderApp =>
+            renderObservable(
+              <RouterContext
+                router={transition.router}
+                render={renderApp}
+              />,
+              appElement
+            )
+        )
+          .do(() => {
+            if (renderable.onBeforeUnload) {
+              this.onBeforeUnload = renderable.onBeforeUnload;
+            }
+            onRendered(transition);
+          });
+      },
+    }));
 }
 
 const router = new Router({

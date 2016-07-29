@@ -85,5 +85,7 @@ export default function prerender(requestPath, cb) {
     .first()
     .forEach((data) => {
       cb(null, data);
-    }, error => cb(error));
+    }, error => cb(error), router.stop());
+
+  router.start();
 }

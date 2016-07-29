@@ -14,3 +14,5 @@ router
   .forEach(() => {
     window.ga('send', 'pageview', window.location.pathname);
   });
+
+router.start();
