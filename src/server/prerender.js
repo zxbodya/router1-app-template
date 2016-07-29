@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 
-import { createServerHistory, Router } from 'router1';
+import { createServerHistory, Router, RouteCollection } from 'router1';
 
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 
@@ -21,53 +21,48 @@ function combineHandlersChain(handlers) {
 }
 
 function handlerFromDef(handler, transition) {
-  let renderable = null;
-  return {
-    load() {
-      return toObservable(handler(transition.params))
-        .take(1)
-        .do(l => {
-          renderable = l;
-        })
-        .toPromise();
-    },
-    hashChange() {
-    },
-    onBeforeUnload() {
-      return '';
-    },
-    render() {
-      if (!renderable) {
-        throw new Error('Route handler is not loaded');
-      }
-      const { view, redirect, status, meta } = renderable;
+  return toObservable(handler(transition.params))
+    .map(renderable => ({
+      hashChange() {
+      },
+      onBeforeUnload() {
+        return '';
+      },
+      render() {
+        if (!renderable) {
+          throw new Error('Route handler is not loaded');
+        }
+        const { view, redirect, status, meta } = renderable;
 
-      if (redirect) {
-        return Observable.return({ redirect, status });
-      }
+        if (redirect) {
+          return Observable.return({ redirect, status });
+        }
 
-      return view.map(
-        renderApp => {
-          const html = ReactDOM.renderToString(
-            <RouterContext router={transition.router} render={renderApp} />
-          );
-          return {
-            view: html,
-            meta,
-            status,
-          };
-        });
-    },
-  };
+        return view.map(
+          renderApp => {
+            const html = ReactDOM.renderToString(
+              <RouterContext router={transition.router} render={renderApp} />
+            );
+            return {
+              view: html,
+              meta,
+              status,
+            };
+          });
+      },
+    }));
 }
+
+const routeCollection = new RouteCollection(routes);
 
 export default function prerender(requestPath, cb) {
   const history = createServerHistory(requestPath);
 
+
   const router = new Router({
     history,
-    routes,
-    createHandler(transition, route, params) {
+    routeCollection,
+    createHandler(transition) {
       if (transition.route.handlers.length) {
         return handlerFromDef(
           combineHandlersChain(transition.route.handlers),
@@ -85,7 +80,7 @@ export default function prerender(requestPath, cb) {
     .first()
     .forEach((data) => {
       cb(null, data);
-    }, error => cb(error), router.stop());
+    }, error => cb(error), () => router.stop());
 
   router.start();
 }

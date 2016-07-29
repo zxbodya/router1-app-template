@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 import { Observable } from 'rx';
 
-import { createBrowserHistory, Router } from 'router1';
+import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
 
 import toObservable from '../utils/toObservable';
@@ -93,7 +93,7 @@ function handlerFromDef(handler, transition) {
 
 const router = new Router({
   history: createBrowserHistory(),
-  routes,
+  routeCollection: new RouteCollection(routes),
   createHandler(transition) {
     if (transition.route.handlers.length) {
       return handlerFromDef(
