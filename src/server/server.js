@@ -6,6 +6,12 @@ import clientEnvVars from './../client/envVars';
 
 const app = express();
 
+import { config } from 'rx';
+
+if (process.env.NODE_ENV !== 'production') {
+  config.longStackSupport = true;
+}
+
 export default function (options) {
   const prerender = options.prerender;
 

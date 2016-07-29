@@ -3,6 +3,13 @@ import './ga';
 import './index.scss';
 import { router } from './router';
 
+
+import { config } from 'rx';
+
+if (process.env.NODE_ENV !== 'production') {
+  config.longStackSupport = true;
+}
+
 router
   .renderResult()
   .forEach(() => {

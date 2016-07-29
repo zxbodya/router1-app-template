@@ -7,6 +7,8 @@ const { Observable, ReplaySubject, Subject } = require('rx');
 
 const net = require('net');
 
+console.log('Starting development server…');
+
 function waitForPort(port, address) {
   return Observable.create(observer => {
     let s;
