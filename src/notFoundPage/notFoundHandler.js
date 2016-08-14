@@ -1,5 +1,5 @@
-import NotFound from './NotFound';
 import createContainer from 'rx-react-container';
+import NotFound from './NotFound';
 
 export default function () {
   return {

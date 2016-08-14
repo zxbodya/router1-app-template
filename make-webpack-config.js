@@ -1,6 +1,8 @@
 const path = require('path');
+const fs = require('fs');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 
 module.exports = function (options) {
   let entry;
@@ -46,7 +48,7 @@ module.exports = function (options) {
       loader: 'file',
     },
     {
-      test: /\.svg(\?v=\d+\.\d+\.\d+|\?.*)?$/,
+      test: /\.svg(\?v=\d+\.\d+\.\d+|\?.*)$/,
       loader: 'url?limit=10000&mimetype=image/svg+xml',
     },
   ];
@@ -96,9 +98,9 @@ module.exports = function (options) {
         });
         jsonStats.publicPath = publicPath;
         if (!options.prerender) {
-          require('fs').writeFileSync(path.join(__dirname, 'build', 'stats.json'), JSON.stringify(jsonStats));
+          fs.writeFileSync(path.join(__dirname, 'build', 'stats.json'), JSON.stringify(jsonStats));
         } else {
-          require('fs').writeFileSync(path.join(__dirname, 'build', 'server', 'stats.json'), JSON.stringify(jsonStats));
+          fs.writeFileSync(path.join(__dirname, 'build', 'server', 'stats.json'), JSON.stringify(jsonStats));
         }
       });
     },
@@ -107,7 +109,7 @@ module.exports = function (options) {
   ];
   if (options.prerender) {
     aliasLoader['react-proxy$'] = 'react-proxy/unavailable';
-    const nodeModules = require('fs').readdirSync('node_modules').filter(x => x !== '.bin');
+    const nodeModules = fs.readdirSync('node_modules').filter(x => x !== '.bin');
 
     externals.push(
       {
@@ -153,6 +155,9 @@ module.exports = function (options) {
   if (options.separateStylesheet && !options.prerender) {
     plugins.push(new ExtractTextPlugin('[name].css' + (options.longTermCaching ? '?[contenthash]' : '')));
   }
+  const definitions = {
+    'process.env.NODE_ENV': options.debug ? JSON.stringify('development') : JSON.stringify('production'),
+  };
 
   if (options.minimize) {
     plugins.push(
@@ -162,19 +167,16 @@ module.exports = function (options) {
         },
       }),
       new webpack.optimize.DedupePlugin(),
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('production'),
-      }),
       new webpack.NoErrorsPlugin()
     );
-  } else {
-    if (!options.prerender) {
-      plugins.push(
-        new webpack.DefinePlugin({
-          'process.env.NODE_ENV': JSON.stringify('development'),
-        })
-      );
-    }
+  }
+
+  plugins.push(
+    new webpack.DefinePlugin(definitions)
+  );
+
+  if (options.hotComponents) {
+    plugins.push(new webpack.HotModuleReplacementPlugin());
   }
 
   return {
@@ -195,7 +197,7 @@ module.exports = function (options) {
         .concat(stylesheetLoaders),
     },
     postcss() {
-      return [require('autoprefixer')({ browsers: ['last 1 version'] })];
+      return [autoprefixer({ browsers: ['last 1 version'] })];
     },
     devtool: options.devtool,
     debug: options.debug,

@@ -1,5 +1,5 @@
-import Contact from './Contact';
 import createContainer from 'rx-react-container';
+import Contact from './Contact';
 
 export default function () {
   return {

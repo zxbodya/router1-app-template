@@ -1,16 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-
 import { createServerHistory, Router, RouteCollection } from 'router1';
+import { RouterContext } from 'router1-react';
+import { config, Observable } from 'rx';
 
 import notFoundHandler from '../notFoundPage/notFoundHandler';
-
 import routes from '../routes';
-
-import { RouterContext } from 'router1-react';
-
 import toObservable from '../utils/toObservable';
-import { config, Observable } from 'rx';
 
 if (process.env.NODE_ENV !== 'production') {
   config.longStackSupport = true;

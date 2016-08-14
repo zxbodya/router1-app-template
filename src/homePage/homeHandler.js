@@ -1,5 +1,5 @@
-import Home from './Home';
 import createContainer from 'rx-react-container';
+import Home from './Home';
 
 export default function () {
   return {

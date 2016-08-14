@@ -2,11 +2,10 @@ import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
 
+import { config } from 'rx';
 import clientEnvVars from './../client/envVars';
 
 const app = express();
-
-import { config } from 'rx';
 
 if (process.env.NODE_ENV !== 'production') {
   config.longStackSupport = true;
@@ -57,7 +56,7 @@ export default function (options) {
 
   for (let i = 0, l = clientEnvVars.length; i < l; i++) {
     const key = clientEnvVars[i];
-    if (process.env.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(process.env, key)) {
       envParams[key] = process.env[key];
     }
   }
@@ -70,22 +69,20 @@ export default function (options) {
         // send error to client, at least in dev mode
         console.error(error);
         res.render('500', { url: req.url });
+      } else if (redirect) {
+        res.writeHead(status || 303, { Location: redirect });
+        res.end();
       } else {
-        if (redirect) {
-          res.writeHead(status || 303, { Location: redirect });
-          res.end();
-        } else {
-          res.status(status || 200);
-          res.render('html', {
-            appHtml: view,
-            title: meta.title,
-            description: meta.description,
-            scriptsUrl: SCRIPT_URL,
-            ieScriptsUrl: IE_SCRIPT_URL,
-            stylesUrl: STYLE_URL,
-            envParams,
-          });
-        }
+        res.status(status || 200);
+        res.render('html', {
+          appHtml: view,
+          title: meta.title,
+          description: meta.description,
+          scriptsUrl: SCRIPT_URL,
+          ieScriptsUrl: IE_SCRIPT_URL,
+          stylesUrl: STYLE_URL,
+          envParams,
+        });
       }
     }
 
