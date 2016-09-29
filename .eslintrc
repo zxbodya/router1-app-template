@@ -28,6 +28,18 @@
       {
         "allowSamePrecedence": true
       }
+    ],
+    "arrow-parens": 0,
+    "react/forbid-prop-types": 0,
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "always-multiline",
+        "objects": "always-multiline",
+        "imports": "always-multiline",
+        "exports": "always-multiline",
+        "functions": "ignore"
+      }
     ]
   }
 }

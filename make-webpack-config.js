@@ -104,8 +104,7 @@ module.exports = function (options) {
         }
       });
     },
-    new webpack.PrefetchPlugin('react'),
-    new webpack.PrefetchPlugin('react/lib/ReactComponentBrowserEnvironment'),
+    new webpack.PrefetchPlugin('react')
   ];
   if (options.prerender) {
     aliasLoader['react-proxy$'] = 'react-proxy/unavailable';
@@ -197,7 +196,7 @@ module.exports = function (options) {
         .concat(stylesheetLoaders),
     },
     postcss() {
-      return [autoprefixer({ browsers: ['last 1 version'] })];
+      return [autoprefixer({ browsers: ['last 2 version'] })];
     },
     devtool: options.devtool,
     debug: options.debug,

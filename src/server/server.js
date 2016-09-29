@@ -54,7 +54,7 @@ export default function (options) {
 
   const envParams = {};
 
-  for (let i = 0, l = clientEnvVars.length; i < l; i++) {
+  for (let i = 0, l = clientEnvVars.length; i < l; i += 1) {
     const key = clientEnvVars[i];
     if (Object.prototype.hasOwnProperty.call(process.env, key)) {
       envParams[key] = process.env[key];
