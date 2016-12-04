@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const autoprefixer = require('autoprefixer');
+const autoPrefixer = require('autoprefixer');
 
 module.exports = function (options) {
   let entry;
@@ -65,7 +65,6 @@ module.exports = function (options) {
   const externals = [];
   const modulesDirectories = ['web_modules', 'node_modules'];
   const extensions = ['', '.web.js', '.js', '.jsx'];
-  const root = path.join(__dirname, 'app');
 
   const host = process.env.HOST || 'localhost';
   const devPort = process.env.DEV_SERVER_PORT || 2992;
@@ -75,9 +74,9 @@ module.exports = function (options) {
     '/_assets/';
 
   const output = {
-    path: path.join(__dirname, 'build', options.prerender ? 'server' : 'public'),
+    path: path.join(__dirname, '..', 'build', options.prerender ? 'server' : 'public'),
     publicPath,
-    filename: '[name].js' + (options.longTermCaching && !options.prerender ? '?[chunkhash]' : ''),
+    filename: `[name].js${options.longTermCaching && !options.prerender ? '?[chunkhash]' : ''}`,
     chunkFilename: (
       (options.devServer ? '[id].js' : '[name].js')
       + (options.longTermCaching && !options.prerender ? '?[chunkhash]' : '')
@@ -98,13 +97,13 @@ module.exports = function (options) {
         });
         jsonStats.publicPath = publicPath;
         if (!options.prerender) {
-          fs.writeFileSync(path.join(__dirname, 'build', 'stats.json'), JSON.stringify(jsonStats));
+          fs.writeFileSync(path.join(__dirname, '..', 'build', 'stats.json'), JSON.stringify(jsonStats));
         } else {
-          fs.writeFileSync(path.join(__dirname, 'build', 'server', 'stats.json'), JSON.stringify(jsonStats));
+          fs.writeFileSync(path.join(__dirname, '..', 'build', 'server', 'stats.json'), JSON.stringify(jsonStats));
         }
       });
     },
-    new webpack.PrefetchPlugin('react')
+    new webpack.PrefetchPlugin('react'),
   ];
   if (options.prerender) {
     aliasLoader['react-proxy$'] = 'react-proxy/unavailable';
@@ -129,7 +128,7 @@ module.exports = function (options) {
     plugins.push(
       new webpack.optimize.CommonsChunkPlugin(
         'commons',
-        'commons.js' + (options.longTermCaching && !options.prerender ? '?[chunkhash]' : '')
+        `commons.js${options.longTermCaching && !options.prerender ? '?[chunkhash]' : ''}`
       )
     );
   }
@@ -152,7 +151,7 @@ module.exports = function (options) {
   });
 
   if (options.separateStylesheet && !options.prerender) {
-    plugins.push(new ExtractTextPlugin('[name].css' + (options.longTermCaching ? '?[contenthash]' : '')));
+    plugins.push(new ExtractTextPlugin(`[name].css${options.longTermCaching ? '?[contenthash]' : ''}`));
   }
   const definitions = {
     'process.env.NODE_ENV': options.debug ? JSON.stringify('development') : JSON.stringify('production'),
@@ -196,17 +195,16 @@ module.exports = function (options) {
         .concat(stylesheetLoaders),
     },
     postcss() {
-      return [autoprefixer({ browsers: ['last 2 version'] })];
+      return [autoPrefixer({ browsers: ['last 2 version'] })];
     },
     devtool: options.devtool,
     debug: options.debug,
     resolveLoader: {
-      root: path.join(__dirname, 'node_modules'),
+      root: path.join(__dirname, '..', 'node_modules'),
       alias: aliasLoader,
     },
     externals,
     resolve: {
-      root,
       modulesDirectories,
       extensions,
       alias,

@@ -4,9 +4,9 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "webpack --config webpack-production.config.js --progress --profile --colors --bail",
+    "build": "webpack --config tools/webpack-production.config.js --progress --profile --colors --bail",
     "lint": "eslint ./src/",
-    "dev-server": "node dev-server.js",
+    "dev-server": "node tools/dev-server.js",
     "start": "node ./build/server/server.js",
     "start-ssr": "node ./build/server/ssrServer.js",
     "test": "jest"

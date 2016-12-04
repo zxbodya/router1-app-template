@@ -78,6 +78,7 @@ Start server:
  - `src` application sources
  - `src/client` browser specific sources
  - `src/server` server specific sources
+ - `tools` tooling and config scripts (webpack, dev server)
 
 ### Build visualization
 

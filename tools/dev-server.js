@@ -78,8 +78,7 @@ frontEndCompiler.plugin('invalid', () => frontStatus$.onNext({ status: 'invalid'
 frontEndCompiler.plugin('done', (stats) => frontStatus$.onNext({ status: 'done', stats }));
 
 const devServer = new WebpackDevServer(frontEndCompiler, {
-  // --progress
-  isHot,
+  hot: isHot,
   compress: false,
   watchOptions: {
     aggregateTimeout: 300,
@@ -89,14 +88,12 @@ const devServer = new WebpackDevServer(frontEndCompiler, {
 });
 
 const notifications$ = new Subject();
-/*eslint-disable */
+
 const sockWrite = devServer.sockWrite;
 
 devServer.sockWrite = (sockets, type, data) => {
   notifications$.onNext({ sockets, type, data });
 };
-
-/*eslint-enable */
 
 devServer.listen(devPort, devHost, () => {
 });
@@ -114,7 +111,7 @@ function startServer() {
     execMap: {
       js: 'node',
     },
-    script: path.join(__dirname, withSSR ? 'build/server/ssrServer' : 'build/server/server'),
+    script: path.join(__dirname, '..', withSSR ? 'build/server/ssrServer' : 'build/server/server'),
     ignore: ['*'],
     watch: [],
     ext: 'noop',
