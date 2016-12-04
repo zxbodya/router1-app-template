@@ -73,7 +73,9 @@ module.exports = function (options) {
     '/_assets/';
 
   const output = {
-    path: path.join(__dirname, '..', 'build', options.isServer ? 'server' : 'public'),
+    path: options.isServer
+      ? path.join(__dirname, '..', 'build', 'server')
+      : path.join(__dirname, '..', 'public', '_assets'),
     publicPath,
     filename: `[name].js${options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''}`,
     chunkFilename: (
@@ -98,7 +100,7 @@ module.exports = function (options) {
         if (!options.isServer) {
           fs.writeFileSync(path.join(__dirname, '..', 'build', 'stats.json'), JSON.stringify(jsonStats));
         } else {
-          fs.writeFileSync(path.join(__dirname, '..', 'build', 'server', 'stats.json'), JSON.stringify(jsonStats));
+          fs.writeFileSync(path.join(__dirname, '..', 'build', 'serverStats.json'), JSON.stringify(jsonStats));
         }
       });
     },
@@ -111,6 +113,7 @@ module.exports = function (options) {
       {
         '../build/stats.json': 'commonjs ../stats.json',
       },
+      'react-dom/server',
       ...nodeModules
     );
 
@@ -122,6 +125,7 @@ module.exports = function (options) {
       );
     }
   }
+
   if (options.commonsChunk) {
     plugins.push(
       new webpack.optimize.CommonsChunkPlugin(

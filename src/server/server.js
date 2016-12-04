@@ -26,7 +26,7 @@ export function createServer(options) {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  app.use('/_assets', express.static(path.join('build', 'public'), {
+  app.use('/_assets', express.static(path.join('public', '_assets'), {
     maxAge: '200d', // We can cache them as they include hashes
   }));
 

@@ -76,8 +76,9 @@ As for dev-server - you can create `.env` file at project root.
 
 ## Project folder structure
 
- - `build` folder with build results
+ - `build` build stats, server
  - `public` static assets
+ - `public/_assets` webpack build results
  - `src` application sources
  - `src/client` browser specific sources
  - `src/server` server specific sources
