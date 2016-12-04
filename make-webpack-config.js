@@ -87,7 +87,7 @@ module.exports = function (options) {
     pathinfo: options.debug,
   };
   const excludeFromStats = [
-    /node_modules[\\\/]react(-router)?[\\\/]/,
+    /node_modules[\\/]react(-router)?[\\/]/,
   ];
   const plugins = [
     function statsPlugin() {
