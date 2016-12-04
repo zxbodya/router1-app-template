@@ -9,7 +9,7 @@ if (process.env.SSR === '1') {
 } else {
   createServer({
     render(requestPath, cb) {
-      cb(null, { html: '', meta: { title: '', description: '' } });
+      cb(null, { view: '', meta: { title: '', description: '' } });
     },
   });
 }

@@ -26,8 +26,8 @@ And tools:
 
 Actually it is not much different from all other boilerplates - same tools and similar config.
 
-But there is one thing that makes it a bit different - there is helper script(`dev-server.js`),
-made to keep sync server side and client side parts reloads. 
+But there is one thing that makes it different - there is helper script(`dev-server.js`),
+to keep server side and client side parts reloads in sync. 
 
 When something was updated client side and needs to be reloaded, before sending reload command,
 if server was also changed, it ensures that it is already up and running.
