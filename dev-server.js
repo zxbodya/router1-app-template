@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const path = require('path');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
@@ -40,21 +41,23 @@ function waitForPort(port, address) {
 
 
 const protocol = 'http';
-const host = process.env.HOST || 'localhost';
+const devHost = process.env.DEV_SERVER_HOST || 'localhost';
 const devPort = process.env.DEV_SERVER_PORT || 2992;
-const appPort = process.env.PORT || 8080;
 
-const hot = process.argv.indexOf('--hot') !== -1;
+const appHost = process.env.APP_SERVER_HOST || 'localhost';
+const appPort = process.env.APP_SERVER_PORT || 8080;
 
-const devServerConfig = hot
+const isHot = process.env.HOT === '1';
+
+const devServerConfig = isHot
   ? require('./webpack-hot-dev-server.config.js')
   : require('./webpack-dev-server.config.js');
 
 const backendConfig = require('./webpack-watch-server.config.js');
 
-const devClient = [`${require.resolve('webpack-dev-server/client/')}?${protocol}://${host}:${devPort}`];
+const devClient = [`${require.resolve('webpack-dev-server/client/')}?${protocol}://${devHost}:${devPort}`];
 
-if (hot) {
+if (isHot) {
   devClient.push(require.resolve('webpack/hot/only-dev-server'));
 }
 
@@ -76,7 +79,7 @@ frontEndCompiler.plugin('done', (stats) => frontStatus$.onNext({ status: 'done',
 
 const devServer = new WebpackDevServer(frontEndCompiler, {
   // --progress
-  hot,
+  isHot,
   compress: false,
   watchOptions: {
     aggregateTimeout: 300,
@@ -95,13 +98,13 @@ devServer.sockWrite = (sockets, type, data) => {
 
 /*eslint-enable */
 
-devServer.listen(devPort, host, () => {
+devServer.listen(devPort, devHost, () => {
 });
 
 
-const withPrerender = process.argv.indexOf('--with-prerender') !== -1;
+const withSSR = process.env.SSR === '1';
 
-delete backendConfig.entry[withPrerender ? 'dev' : 'prod'];
+delete backendConfig.entry[withSSR ? 'server' : 'ssrServer'];
 
 const nodemonStart$ = new Subject();
 
@@ -111,7 +114,7 @@ function startServer() {
     execMap: {
       js: 'node',
     },
-    script: path.join(__dirname, withPrerender ? 'build/server/prod' : 'build/server/dev'),
+    script: path.join(__dirname, withSSR ? 'build/server/ssrServer' : 'build/server/server'),
     ignore: ['*'],
     watch: [],
     ext: 'noop',
@@ -151,7 +154,7 @@ Observable
     console.log('Starting dev server');
     nodemonStart$
       .first()
-      .flatMap(() => waitForPort(appPort, host))
+      .flatMap(() => waitForPort(appPort, appHost))
       .forEach(() => {
         console.log('Dev server is ready');
       });
@@ -163,7 +166,7 @@ const isReady$ = backendStatus$
       nodemon.restart();
       return nodemonStart$
         .first()
-        .flatMap(() => waitForPort(appPort, host))
+        .flatMap(() => waitForPort(appPort, appHost))
         .map(() => true);
     }
     return [false];

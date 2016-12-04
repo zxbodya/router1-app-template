@@ -9,8 +9,8 @@ module.exports = function (options) {
 
   if (options.prerender) {
     entry = {
-      dev: './src/server/server-development',
-      prod: './src/server/server-production',
+      server: './src/server/server',
+      ssrServer: './src/server/ssrServer',
     };
   } else {
     entry = {

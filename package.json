@@ -4,15 +4,11 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --progress --colors --port 2992 --inline",
-    "hot-dev-server": "webpack-dev-server --config webpack-hot-dev-server.config.js --hot --progress --colors --port 2992 --inline",
     "build": "webpack --config webpack-production.config.js --progress --profile --colors --bail",
     "lint": "eslint ./src/",
-    "watch-dev": "node dev-server.js",
-    "watch-hot-dev": "node dev-server.js --hot",
-    "watch-prod": "node dev-server.js --with-prerender",
-    "start-dev": "node ./build/server/dev.js",
-    "start": "node ./build/server/prod.js",
+    "dev-server": "node dev-server.js",
+    "start": "node ./build/server/server.js",
+    "start-ssr": "node ./build/server/ssrServer.js",
     "test": "jest"
   },
   "devDependencies": {
