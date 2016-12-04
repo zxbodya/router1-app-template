@@ -19,23 +19,14 @@ module.exports = function (options) {
   }
 
   const defaultLoaders = [
-    { test: /\.coffee$/, loaders: ['coffee-redux-loader'] },
     { test: /\.json5$/, loaders: ['json5-loader'] },
     { test: /\.txt$/, loaders: ['raw-loader'] },
     { test: /\.(png|jpg|jpeg|gif|svg)$/, loaders: ['url-loader?limit=10000'] },
-    // {test: /\.(woff|woff2)$/, loaders: ['url-loader?limit=100000']},
-    // {test: /\.(ttf|eot)$/, loaders: ['file-loader']},
-    { test: /\.(wav|mp3)$/, loaders: ['file-loader'] },
     { test: /\.html$/, loaders: ['html-loader'] },
-    { test: /\.(md|markdown)$/, loaders: ['html-loader', 'markdown-loader'] },
 
     // font awesome
     {
-      test: /\.woff(\?v=\d+\.\d+\.\d+|\?.*)?$/,
-      loader: 'url?limit=10000&mimetype=application/font-woff',
-    },
-    {
-      test: /\.woff2(\?v=\d+\.\d+\.\d+|\?.*)?$/,
+      test: /\.woff2?(\?v=\d+\.\d+\.\d+|\?.*)?$/,
       loader: 'url?limit=10000&mimetype=application/font-woff',
     },
     {
@@ -53,8 +44,6 @@ module.exports = function (options) {
   ];
   let stylesheetLoaders = [
     { test: /\.css$/, loaders: ['css-loader!postcss-loader'] },
-    { test: /\.less$/, loaders: ['css-loader!postcss-loader!less-loader'] },
-    { test: /\.styl$/, loaders: ['css-loader!postcss-loader!stylus-loader'] },
     { test: /\.scss$/, loaders: ['css-loader!postcss-loader!sass-loader?sourceMap'] },
     { test: /\.sass$/, loaders: ['css-loader!postcss-loader!sass-loader?sourceMap&indentedSyntax'] },
   ];
