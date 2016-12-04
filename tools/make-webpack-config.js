@@ -7,7 +7,7 @@ const autoPrefixer = require('autoprefixer');
 module.exports = function (options) {
   let entry;
 
-  if (options.prerender) {
+  if (options.isServer) {
     entry = {
       server: './src/server/server',
       ssrServer: './src/server/ssrServer',
@@ -73,15 +73,15 @@ module.exports = function (options) {
     '/_assets/';
 
   const output = {
-    path: path.join(__dirname, '..', 'build', options.prerender ? 'server' : 'public'),
+    path: path.join(__dirname, '..', 'build', options.isServer ? 'server' : 'public'),
     publicPath,
-    filename: `[name].js${options.longTermCaching && !options.prerender ? '?[chunkhash]' : ''}`,
+    filename: `[name].js${options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''}`,
     chunkFilename: (
       (options.devServer ? '[id].js' : '[name].js')
-      + (options.longTermCaching && !options.prerender ? '?[chunkhash]' : '')
+      + (options.longTermCaching && !options.isServer ? '?[chunkhash]' : '')
     ),
     sourceMapFilename: 'debugging/[file].map',
-    libraryTarget: options.prerender ? 'commonjs2' : undefined,
+    libraryTarget: options.isServer ? 'commonjs2' : undefined,
     pathinfo: options.debug,
   };
   const excludeFromStats = [
@@ -95,7 +95,7 @@ module.exports = function (options) {
           exclude: excludeFromStats,
         });
         jsonStats.publicPath = publicPath;
-        if (!options.prerender) {
+        if (!options.isServer) {
           fs.writeFileSync(path.join(__dirname, '..', 'build', 'stats.json'), JSON.stringify(jsonStats));
         } else {
           fs.writeFileSync(path.join(__dirname, '..', 'build', 'server', 'stats.json'), JSON.stringify(jsonStats));
@@ -104,7 +104,7 @@ module.exports = function (options) {
     },
     new webpack.PrefetchPlugin('react'),
   ];
-  if (options.prerender) {
+  if (options.isServer) {
     aliasLoader['react-proxy$'] = 'react-proxy/unavailable';
     const nodeModules = fs.readdirSync('node_modules').filter(x => x !== '.bin');
 
@@ -127,7 +127,7 @@ module.exports = function (options) {
     plugins.push(
       new webpack.optimize.CommonsChunkPlugin(
         'commons',
-        `commons.js${options.longTermCaching && !options.prerender ? '?[chunkhash]' : ''}`
+        `commons.js${options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''}`
       )
     );
   }
@@ -138,7 +138,7 @@ module.exports = function (options) {
     if (Array.isArray(loader.loaders)) {
       loader.loaders = loader.loaders.join('!');
     }
-    if (options.prerender) {
+    if (options.isServer) {
       loader.loaders = 'null-loader';
     } else if (options.separateStylesheet) {
       loader.loaders = ExtractTextPlugin.extract('style-loader', loader.loaders);
@@ -149,7 +149,7 @@ module.exports = function (options) {
     return loader;
   });
 
-  if (options.separateStylesheet && !options.prerender) {
+  if (options.separateStylesheet && !options.isServer) {
     plugins.push(new ExtractTextPlugin(`[name].css${options.longTermCaching ? '?[contenthash]' : ''}`));
   }
   const definitions = {
@@ -176,19 +176,30 @@ module.exports = function (options) {
     plugins.push(new webpack.HotModuleReplacementPlugin());
   }
 
+  const babelLoader = {
+    test: /\.jsx?$/,
+    exclude: /node_modules/,
+  };
+  if (options.isServer) {
+    babelLoader.loader = 'babel';
+    babelLoader.query = {
+      presets: ['react'],
+      plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
+      babelrc: false,
+    };
+  } else if (options.hotComponents) {
+    babelLoader.loaders = ['react-hot', 'babel'];
+  } else {
+    babelLoader.loader = 'babel';
+  }
+
   return {
     entry,
     output,
-    target: options.prerender ? 'node' : 'web',
+    target: options.isServer ? 'node' : 'web',
     module: {
       loaders: [
-        {
-          test: /\.jsx?$/,
-          loaders: options.hotComponents
-            ? ['react-hot', 'babel?presets[]=react&presets[]=es2015&plugins[]=transform-runtime']
-            : ['babel?presets[]=react&presets[]=es2015&plugins[]=transform-runtime'],
-          exclude: /node_modules/,
-        },
+        babelLoader,
       ]
         .concat(defaultLoaders)
         .concat(stylesheetLoaders),

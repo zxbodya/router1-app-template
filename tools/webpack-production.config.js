@@ -9,7 +9,7 @@ const config = [
     // devtool: "source-map",
   }),
   makeWebpackConfig({
-    prerender: true,
+    isServer: true,
   }),
 ];
 
