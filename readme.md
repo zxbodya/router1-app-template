@@ -59,6 +59,7 @@ Also you can enable some other things for dev-server by environment variables
 - `HOT=1` to enable hot reload for client side  
 - `SSR=1` to enable server-side rendering in dev environment(disabled by default because typically you need test things on client side first)
 
+For setting those variavles - you can create `.env` file at project root 
 ## Production compilation and server
 
 Build sources:
