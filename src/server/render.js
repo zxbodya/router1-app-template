@@ -51,7 +51,7 @@ function handlerFromDef(handler, transition) {
 
 const routeCollection = new RouteCollection(routes);
 
-export default function render(requestPath, cb) {
+export function render(requestPath, cb) {
   const history = createServerHistory(requestPath);
 
 

@@ -102,7 +102,9 @@ devServer.listen(devPort, devHost, () => {
 
 const withSSR = process.env.SSR === '1';
 
-delete backendConfig.entry[withSSR ? 'server' : 'ssrServer'];
+if (!withSSR) {
+  delete backendConfig.entry.render;
+}
 
 const nodemonStart$ = new Subject();
 
@@ -112,7 +114,7 @@ function startServer() {
     execMap: {
       js: 'node',
     },
-    script: path.join(__dirname, '..', withSSR ? 'build/server/ssrServer' : 'build/server/server'),
+    script: path.join(__dirname, '..', 'server'),
     ignore: ['*'],
     watch: [],
     ext: 'noop',

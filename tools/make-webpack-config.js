@@ -9,8 +9,8 @@ module.exports = function (options) {
 
   if (options.isServer) {
     entry = {
+      render: './src/server/render',
       server: './src/server/server',
-      ssrServer: './src/server/ssrServer',
     };
   } else {
     entry = {
@@ -106,8 +106,7 @@ module.exports = function (options) {
   ];
   if (options.isServer) {
     aliasLoader['react-proxy$'] = 'react-proxy/unavailable';
-    const nodeModules = fs.readdirSync('node_modules').filter(x => x !== '.bin');
-
+    const nodeModules = fs.readdirSync(path.join(__dirname, '..', 'node_modules')).filter(x => x !== '.bin');
     externals.push(
       {
         '../build/stats.json': 'commonjs ../stats.json',
