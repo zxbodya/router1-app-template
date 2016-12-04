@@ -20,7 +20,6 @@ export default function (options) {
   const mainArr = [].concat(stats.assetsByChunkName.main);
   const STYLE_URL = mainArr.length > 1 ? publicPath + mainArr[1] : false;
   const SCRIPT_URL = publicPath + mainArr[0];
-  const IE_SCRIPT_URL = publicPath + [].concat(stats.assetsByChunkName.ie)[0];
   // var COMMONS_URL = publicPath + [].concat(stats.assetsByChunkName.commons)[0];
 
 
@@ -78,7 +77,6 @@ export default function (options) {
           title: meta.title,
           description: meta.description,
           scriptsUrl: SCRIPT_URL,
-          ieScriptsUrl: IE_SCRIPT_URL,
           stylesUrl: STYLE_URL,
           envParams,
         });

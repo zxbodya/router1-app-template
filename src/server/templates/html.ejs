@@ -4,23 +4,17 @@
   <meta charset="utf-8">
   <title><%- title %></title>
   <meta name="description" content="<%- description %>">
-  <!--<meta name="viewport" content="width=device-width">-->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-  <meta name="og:image" content="/images/fbshare.png">
-  <meta name="og:title" content="<%- title %>">
-  <meta name="og:description" content="<%- description %>">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <% if(stylesUrl){ %>
   <link rel="stylesheet" href="<%- stylesUrl %>">
   <% } %>
-  <!--[if IE]>
-  <!--<link rel="stylesheet" type="text/css" href="styles/ie.css"/>
-  <![endif]-->
 </head>
 <body>
-<!--[if lt IE 7]>
-<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
-  your browser</a> to improve your experience.</p>
+<!--[if lt IE 9]>
+<p class="browsehappy">
+  You are using an <strong>outdated</strong> browser.
+  Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
+</p>
 <![endif]-->
 
 <div id="app"><%- appHtml %></div>
@@ -28,10 +22,6 @@
 <script>
   window.envParams = <%- JSON.stringify(envParams) %>;
 </script>
-
-<!--[if lt IE 9]>
-<script src="<%- ieScriptsUrl %>"></script>
-<![endif]-->
 
 <script defer src="<%- scriptsUrl %>"></script>
 

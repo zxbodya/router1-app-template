@@ -15,7 +15,6 @@ module.exports = function (options) {
   } else {
     entry = {
       main: './src/client/index',
-      ie: './src/client/ie',
     };
   }
 
