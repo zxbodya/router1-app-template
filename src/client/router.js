@@ -52,15 +52,12 @@ const hashChange = ({ hash, source }) => {
 
 function handlerFromDef(handler, transition) {
   return toObservable(handler(transition.params))
-    .map(renderable => ({
+    .map(renderable => renderable && ({
       hashChange,
       onBeforeUnload() {
         return '';
       },
       render() {
-        if (!renderable) {
-          throw new Error('Route handler is not loaded');
-        }
         const { redirect, view, meta } = renderable;
         if (redirect) {
           transition.forward(redirect);
@@ -68,8 +65,12 @@ function handlerFromDef(handler, transition) {
         }
 
         document.title = meta.title || '';
-
-        // $('meta[name=description]').text(meta.description || '');
+        document.getElementsByName('description')
+          .forEach(e => {
+            if (e.tagName === 'META') {
+              e.setAttribute('content', meta.description || '');
+            }
+          });
 
         return view.flatMap(
           renderApp =>

@@ -18,16 +18,13 @@ function combineHandlersChain(handlers) {
 
 function handlerFromDef(handler, transition) {
   return toObservable(handler(transition.params))
-    .map(renderable => ({
+    .map(renderable => renderable && ({
       hashChange() {
       },
       onBeforeUnload() {
         return '';
       },
       render() {
-        if (!renderable) {
-          throw new Error('Route handler is not loaded');
-        }
         const { view, redirect, status, meta } = renderable;
 
         if (redirect) {
