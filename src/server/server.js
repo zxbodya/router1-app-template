@@ -31,6 +31,11 @@ export function createServer(options) {
   }));
 
   app.use('/', express.static(path.join('public'), {}));
+  app.get('/favicon.ico', (req, res) => {
+    // used when no favicon file found
+    // was added to prevent matching /*
+    res.status(404).send();
+  });
 
   app.set('views', path.join('src', 'server', 'templates'));
   // app.set('views', path.join(__dirname, 'templates'));
@@ -44,11 +49,6 @@ export function createServer(options) {
   //     }
   //   }(app.get('etag fn'))
   // ));
-
-
-  app.get('/favicon.ico', (req, res) => {
-    res.status(404).send();
-  });
 
   const envParams = {};
 

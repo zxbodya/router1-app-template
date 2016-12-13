@@ -17,6 +17,7 @@ import { ScrollManager } from './ScrollManager';
 const renderObservable = Observable.fromCallback(ReactDOM.render);
 const appElement = document.getElementById('app');
 
+// helper for animated scrolling management
 const sm = new ScrollManager();
 
 const onRendered = (routingResult) => {
@@ -24,6 +25,7 @@ const onRendered = (routingResult) => {
   const locationSource = routingResult.location.source;
   const locationHash = routingResult.location.hash;
 
+  // case when scrolling was implicitly disabled in state params
   if (routingResult.location.state.noscroll) return;
   // should scroll only on this location sources
   if (locationSource === 'push' || locationSource === 'replace') {
@@ -50,11 +52,23 @@ const hashChange = ({ hash, source }) => {
   sm.scrollToAnchor(hash, true);
 };
 
+// helper to update page meta information after transition
+function updateMetaData(meta) {
+  document.title = meta.title || '';
+  document.getElementsByName('description')
+    .forEach(e => {
+      if (e.tagName === 'META') {
+        e.setAttribute('content', meta.description || '');
+      }
+    });
+}
+
 function handlerFromDef(handler, transition) {
   return toObservable(handler(transition.params))
     .map(renderable => renderable && ({
       hashChange,
       onBeforeUnload() {
+        // by default do not prevent transition
         return '';
       },
       render() {
@@ -64,13 +78,7 @@ function handlerFromDef(handler, transition) {
           return Observable.empty();
         }
 
-        document.title = meta.title || '';
-        document.getElementsByName('description')
-          .forEach(e => {
-            if (e.tagName === 'META') {
-              e.setAttribute('content', meta.description || '');
-            }
-          });
+        updateMetaData(meta);
 
         return view.flatMap(
           renderApp =>
@@ -83,9 +91,11 @@ function handlerFromDef(handler, transition) {
             )
         )
           .do(() => {
+            // after state was rendered, set beforeUnload listener
             if (renderable.onBeforeUnload) {
               this.onBeforeUnload = renderable.onBeforeUnload;
             }
+            // do scroll effects after rendering
             onRendered(transition);
           });
       },

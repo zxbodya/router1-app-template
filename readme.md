@@ -33,7 +33,7 @@ When something was updated client side and needs to be reloaded, before sending 
 if server was also changed, it ensures that it is already up and running.
 
 In result it removes some frustration, especially when changing code shared between server and client parts.
- 
+
 ## Development environment setup
 
 0. Check your Node.js version - it should be version 6 or later

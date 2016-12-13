@@ -1,5 +1,5 @@
 import { config } from 'rx';
-import {} from './env';
+import './env';
 import './ga';
 import './index.scss';
 import { router } from './router';
