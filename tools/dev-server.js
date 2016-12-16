@@ -5,7 +5,7 @@ const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 const nodemon = require('nodemon');
 
-const { Observable, ReplaySubject, Subject } = require('rx');
+const { Observable, ReplaySubject, Subject } = require('rxjs');
 
 const net = require('net');
 
@@ -20,8 +20,8 @@ function waitForPort(port, address) {
       s.connect(port, address, () => {
         s.destroy();
         console.log(`"${address}:${port}" is up`);
-        observer.onNext('ok');
-        observer.onCompleted();
+        observer.next('ok');
+        observer.complete();
       });
       s.on('error', () => {
         s.destroy();
@@ -74,9 +74,9 @@ if (typeof devServerConfig.entry === 'object' && !Array.isArray(devServerConfig.
 
 const frontStatus$ = new ReplaySubject();
 const frontEndCompiler = webpack(devServerConfig);
-frontEndCompiler.plugin('compile', () => frontStatus$.onNext({ status: 'compile' }));
-frontEndCompiler.plugin('invalid', () => frontStatus$.onNext({ status: 'invalid' }));
-frontEndCompiler.plugin('done', (stats) => frontStatus$.onNext({ status: 'done', stats }));
+frontEndCompiler.plugin('compile', () => frontStatus$.next({ status: 'compile' }));
+frontEndCompiler.plugin('invalid', () => frontStatus$.next({ status: 'invalid' }));
+frontEndCompiler.plugin('done', (stats) => frontStatus$.next({ status: 'done', stats }));
 
 const devServer = new WebpackDevServer(frontEndCompiler, {
   hot: isHot,
@@ -93,7 +93,7 @@ const notifications$ = new Subject();
 const sockWrite = devServer.sockWrite;
 
 devServer.sockWrite = (sockets, type, data) => {
-  notifications$.onNext({ sockets, type, data });
+  notifications$.next({ sockets, type, data });
 };
 
 devServer.listen(devPort, devHost, () => {
@@ -122,7 +122,7 @@ function startServer() {
     stdout: true,
   })
     .on('start', () => {
-      nodemonStart$.onNext('start');
+      nodemonStart$.next('start');
     });
 }
 
@@ -140,9 +140,9 @@ backendCompiler
     }
   });
 
-backendCompiler.plugin('compile', () => backendStatus$.onNext({ status: 'compile' }));
-backendCompiler.plugin('invalid', () => backendStatus$.onNext({ status: 'invalid' }));
-backendCompiler.plugin('done', (stats) => backendStatus$.onNext({ status: 'done', stats }));
+backendCompiler.plugin('compile', () => backendStatus$.next({ status: 'compile' }));
+backendCompiler.plugin('invalid', () => backendStatus$.next({ status: 'invalid' }));
+backendCompiler.plugin('done', (stats) => backendStatus$.next({ status: 'done', stats }));
 
 Observable
   .combineLatest(
@@ -161,7 +161,7 @@ Observable
   });
 
 const isReady$ = backendStatus$
-  .flatMapLatest(({ status }) => {
+  .switchMap(({ status }) => {
     if (status === 'done') {
       nodemon.restart();
       return nodemonStart$

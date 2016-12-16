@@ -39,7 +39,7 @@ In result it removes some frustration, especially when changing code shared betw
 0. Check your Node.js version - it should be version 6 or later
 1. Install dependencies using npm (or yarn)
 2. start server app, with automatic recompile and reload when something changes
-    - `npm run dev-server`
+    - `npm run dev`
 3. open this url in your browser: `http://localhost:8080/`
 
 To customize host and ports used by application - use environment variables:
