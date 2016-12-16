@@ -4,7 +4,7 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoPrefixer = require('autoprefixer');
 
-module.exports = function (options) {
+module.exports = function makeWebpackConfig(options) {
   let entry;
 
   if (options.isServer) {
@@ -48,17 +48,11 @@ module.exports = function (options) {
     { test: /\.sass$/, loaders: ['css-loader!postcss-loader!sass-loader?sourceMap&indentedSyntax'] },
   ];
 
-  const alias = {};
-  const aliasLoader = {};
-  const externals = [];
-  const modulesDirectories = ['web_modules', 'node_modules'];
-  const extensions = ['', '.web.js', '.js', '.jsx'];
-
-  const host = process.env.HOST || 'localhost';
+  const devHost = process.env.DEV_SERVER_HOST || 'localhost';
   const devPort = process.env.DEV_SERVER_PORT || 2992;
 
   const publicPath = options.devServer ?
-    `http://${host}:${devPort}/_assets/` :
+    `http://${devHost}:${devPort}/_assets/` :
     '/_assets/';
 
   const output = {
@@ -95,6 +89,11 @@ module.exports = function (options) {
     },
     new webpack.PrefetchPlugin('react'),
   ];
+
+  const alias = {};
+  const aliasLoader = {};
+  const externals = [];
+
   if (options.isServer) {
     aliasLoader['react-proxy$'] = 'react-proxy/unavailable';
     const nodeModules = fs.readdirSync(path.join(__dirname, '..', 'node_modules')).filter(x => x !== '.bin');
@@ -207,8 +206,8 @@ module.exports = function (options) {
     },
     externals,
     resolve: {
-      modulesDirectories,
-      extensions,
+      modulesDirectories: ['web_modules', 'node_modules'],
+      extensions: ['', '.web.js', '.js', '.jsx'],
       alias,
     },
     plugins,
