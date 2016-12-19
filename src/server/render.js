@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom/server';
 import { createServerHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
 import { config, Observable } from 'rx';
@@ -32,16 +31,14 @@ function handlerFromDef(handler, transition) {
         }
 
         return view.map(
-          renderApp => {
-            const html = ReactDOM.renderToString(
+          renderApp => ({
+            view: (
               <RouterContext router={transition.router} render={renderApp} />
-            );
-            return {
-              view: html,
-              meta,
-              status,
-            };
-          });
+            ),
+            meta,
+            status,
+          })
+        );
       },
     }));
 }

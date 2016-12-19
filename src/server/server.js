@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom/server';
 import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
@@ -72,14 +73,23 @@ export function createServer(options) {
         res.end();
       } else {
         res.status(status || 200);
-        res.render('html', {
-          appHtml: view,
+        res.render('html-head', {
           title: meta.title,
           description: meta.description,
-          scriptsUrl: SCRIPT_URL,
           stylesUrl: STYLE_URL,
-          envParams,
+        }, (err, content) => {
+          res.write(content);
         });
+        res.write('<div id="app">');
+        const html = view ? ReactDOM.renderToString(view) : '';
+        res.write(html);
+        res.write('</div>');
+
+        res.render('html-footer', {
+          scriptsUrl: SCRIPT_URL,
+          envParams,
+        }, (err, content) => res.write(content));
+        res.end();
       }
     }
 
