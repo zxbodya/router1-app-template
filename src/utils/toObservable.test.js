@@ -1,4 +1,4 @@
-import { Observable } from 'rx';
+import { Observable } from 'rxjs';
 import toObservable from './toObservable';
 
 describe('toObservable', () => {
@@ -19,7 +19,7 @@ describe('toObservable', () => {
   });
 
   it('wraps observable', done => {
-    toObservable(Observable.return({ a: 1 }))
+    toObservable(Observable.of({ a: 1 }))
       .forEach(v => {
         expect(v).toEqual({ a: 1 });
         done();

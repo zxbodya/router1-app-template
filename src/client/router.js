@@ -2,7 +2,7 @@ import React from 'react';
 
 import ReactDOM from 'react-dom';
 
-import { Observable } from 'rx';
+import { Observable } from 'rxjs';
 
 import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
@@ -14,7 +14,7 @@ import notFoundHandler from '../notFoundPage/notFoundHandler';
 
 import { ScrollManager } from './ScrollManager';
 
-const renderObservable = Observable.fromCallback(ReactDOM.render);
+const renderObservable = Observable.bindCallback(ReactDOM.render);
 const appElement = document.getElementById('app');
 
 // helper for animated scrolling management
@@ -85,8 +85,9 @@ function handlerFromDef(handler, transition) {
             renderObservable(
               <RouterContext
                 router={transition.router}
-                render={renderApp}
-              />,
+              >
+                {renderApp()}
+              </RouterContext>,
               appElement
             )
         )

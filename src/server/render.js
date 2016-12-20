@@ -1,15 +1,11 @@
 import React from 'react';
 import { createServerHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
-import { config, Observable } from 'rx';
+import { Observable } from 'rxjs';
 
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 import routes from '../routes';
 import toObservable from '../utils/toObservable';
-
-if (process.env.NODE_ENV !== 'production') {
-  config.longStackSupport = true;
-}
 
 function combineHandlersChain(handlers) {
   return handlers[0];
@@ -27,13 +23,15 @@ function handlerFromDef(handler, transition) {
         const { view, redirect, status, meta } = renderable;
 
         if (redirect) {
-          return Observable.return({ redirect, status });
+          return Observable.of({ redirect, status });
         }
 
         return view.map(
           renderApp => ({
             view: (
-              <RouterContext router={transition.router} render={renderApp} />
+              <RouterContext router={transition.router}>
+                {renderApp()}
+              </RouterContext>
             ),
             meta,
             status,
@@ -68,9 +66,13 @@ export function render(requestPath, cb) {
   router
     .renderResult()
     .first()
-    .forEach((data) => {
-      cb(null, data);
-    }, error => cb(error), () => router.stop());
+    .subscribe(
+      (data) => {
+        cb(null, data);
+      },
+      error => cb(error),
+      () => router.stop()
+    );
 
   router.start();
 }

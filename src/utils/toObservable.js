@@ -1,12 +1,11 @@
-import { Observable, helpers } from 'rx';
+import { Observable } from 'rxjs';
+import { isPromise } from 'rxjs/util/isPromise';
+import { isFunction } from 'rxjs/util/isFunction';
 
-const observableReturn = Observable.return;
-const observableFromPromise = Observable.fromPromise;
-const isObservable = Observable.isObservable;
-const isPromise = helpers.isPromise;
+const isObservable = v => isFunction(v.subscribe);
 
 export default function (data) {
   if (isObservable(data)) return data;
-  if (isPromise(data)) return observableFromPromise(data);
-  return observableReturn(data);
+  if (isPromise(data)) return Observable.fromPromise(data);
+  return Observable.of(data);
 }

@@ -3,12 +3,8 @@ import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
 
-import { config } from 'rx';
+import 'rxjs';
 import clientEnvVars from './../client/envVars';
-
-if (process.env.NODE_ENV !== 'production') {
-  config.longStackSupport = true;
-}
 
 export function createServer(options) {
   const app = express();

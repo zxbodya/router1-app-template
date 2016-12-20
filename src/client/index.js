@@ -1,12 +1,8 @@
-import { config } from 'rx';
+import 'rxjs';
 import './env';
 import './ga';
 import './index.scss';
 import { router } from './router';
-
-if (process.env.NODE_ENV !== 'production') {
-  config.longStackSupport = true;
-}
 
 router
   .renderResult()
