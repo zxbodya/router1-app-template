@@ -3,7 +3,6 @@ import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
 
-import 'rxjs';
 import clientEnvVars from './../client/envVars';
 
 export function createServer(options) {

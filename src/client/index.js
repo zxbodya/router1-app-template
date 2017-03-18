@@ -1,4 +1,3 @@
-import 'rxjs';
 import './env';
 import './ga';
 import './index.scss';
