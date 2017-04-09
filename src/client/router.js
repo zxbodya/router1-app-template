@@ -2,7 +2,11 @@ import React from 'react';
 
 import ReactDOM from 'react-dom';
 
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/empty';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/do';
+
 
 import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';

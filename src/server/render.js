@@ -1,7 +1,10 @@
 import React from 'react';
 import { createServerHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/first';
+import 'rxjs/add/operator/switchMap';
 
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 import routes from '../routes';

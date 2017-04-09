@@ -1,6 +1,8 @@
 import { Link } from 'router1-react';
 import React from 'react';
 
+import PropTypes from 'prop-types';
+
 function Layout(props) {
   return (
     <div>
@@ -19,7 +21,7 @@ function Layout(props) {
 }
 
 Layout.propTypes = {
-  children: React.PropTypes.any.isRequired,
+  children: PropTypes.any.isRequired,
 };
 
 export default Layout;
