@@ -20,6 +20,6 @@ if (process.env.GA_CODE) {
 }
 
 
-window.gae = function (eventCategory, eventAction, eventLabel, eventValue, fieldsObject) {
+window.gae = (eventCategory, eventAction, eventLabel, eventValue, fieldsObject) => {
   window.ga('send', 'event', eventCategory, eventAction, eventLabel, eventValue, fieldsObject);
 };

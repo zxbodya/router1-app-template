@@ -130,6 +130,7 @@ window.onbeforeunload = (e) => {
     e.returnValue = returnValue;
     return returnValue;
   }
+  return '';
 };
 
 export { router };
