@@ -70,6 +70,9 @@ module.exports = function makeWebpackConfig(options) {
   ];
   const postCssLoader = {
     loader: 'postcss-loader',
+    options: {
+      sourceMap: true,
+    },
   };
   const cssLoader = {
     loader: 'css-loader',
