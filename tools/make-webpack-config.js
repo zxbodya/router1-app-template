@@ -164,7 +164,7 @@ module.exports = function makeWebpackConfig(options) {
 
   const alias = {
     router1: 'router1/src',
-    'router1-react': 'router1/src',
+    'router1-react': 'router1-react/src',
     'rx-react-container': 'rx-react-container/src',
   };
 
