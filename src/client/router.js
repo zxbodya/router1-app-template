@@ -60,12 +60,13 @@ const hashChange = ({ hash, source }) => {
 // helper to update page meta information after transition
 function updateMetaData(meta) {
   document.title = meta.title || '';
-  document.getElementsByName('description')
-    .forEach(e => {
-      if (e.tagName === 'META') {
-        e.setAttribute('content', meta.description || '');
-      }
-    });
+  const descList = document.getElementsByName('description');
+  for (let i = 0; i < descList.length; i += 1) {
+    const e = descList[i];
+    if (e.tagName === 'META') {
+      e.setAttribute('content', meta.description || '');
+    }
+  }
 }
 
 function handlerFromDef(handler, transition) {
