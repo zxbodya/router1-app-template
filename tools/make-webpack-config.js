@@ -143,6 +143,7 @@ module.exports = function makeWebpackConfig(options) {
     // /node_modules[\\/]react(-router)?[\\/]/,
   ];
   const plugins = [
+    new webpack.optimize.ModuleConcatenationPlugin(),
     function statsPlugin() {
       this.plugin('done', (stats) => {
         const jsonStats = stats.toJson({
