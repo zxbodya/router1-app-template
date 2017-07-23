@@ -59,7 +59,7 @@ const backendConfig = require('./webpack-watch-server.config.js');
 const devClient = [`${require.resolve('webpack-dev-server/client/')}?${protocol}://${devHost}:${devPort}`];
 
 if (isHot) {
-  devClient.push(require.resolve('webpack/hot/only-dev-server'));
+  devClient.push(require.resolve('webpack/hot/dev-server'));
 }
 
 if (typeof devServerConfig.entry === 'object' && !Array.isArray(devServerConfig.entry)) {
@@ -84,6 +84,7 @@ const devServer = new WebpackDevServer(frontEndCompiler, {
   watchOptions: {
     aggregateTimeout: 300,
   },
+  headers: { 'Access-Control-Allow-Origin': '*' },
   publicPath: '/_assets/',
   stats: Object.assign({ colors: true }, devServerConfig.devServer.stats),
 });
