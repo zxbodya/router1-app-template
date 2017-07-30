@@ -9,8 +9,8 @@ module.exports = function makeWebpackConfig(options) {
 
   if (options.isServer) {
     entry = {
-      render: './src/server/render.js',
-      server: './src/server/server.js',
+      ssr: './src/server/ssr.js',
+      nossr: './src/server/nossr.js',
     };
   } else {
     entry = {
@@ -179,7 +179,7 @@ module.exports = function makeWebpackConfig(options) {
       {
         '../build/stats.json': 'commonjs ../stats.json',
       },
-      ...nodeModules.map(v => new RegExp(`^${v}`))
+      ...nodeModules
     );
 
     plugins.push(new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }));
