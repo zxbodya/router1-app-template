@@ -100,10 +100,9 @@ devServer.sockWrite = (sockets, type, data) => {
 devServer.listen(devPort, devHost, () => {
 });
 
-
 const withSSR = process.env.SSR === '1';
 
-if (!withSSR) {
+if (withSSR) {
   delete backendConfig.entry.nossr;
 } else {
   delete backendConfig.entry.ssr;
