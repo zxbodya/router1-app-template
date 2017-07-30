@@ -1,15 +1,7 @@
 require('dotenv').config({ silent: true });
-const { createServer } = require('./build/server/server');
 
 if (process.env.SSR === '1') {
-  const { render } = require('./build/server/render');
-  createServer({
-    render,
-  });
+  require('./build/server/ssr');
 } else {
-  createServer({
-    render(requestPath, cb) {
-      cb(null, { view: '', meta: { title: '', description: '' } });
-    },
-  });
+  require('./build/server/nossr');
 }

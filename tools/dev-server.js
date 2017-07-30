@@ -104,7 +104,9 @@ devServer.listen(devPort, devHost, () => {
 const withSSR = process.env.SSR === '1';
 
 if (!withSSR) {
-  delete backendConfig.entry.render;
+  delete backendConfig.entry.nossr;
+} else {
+  delete backendConfig.entry.ssr;
 }
 
 const nodemonStart$ = new Subject();
