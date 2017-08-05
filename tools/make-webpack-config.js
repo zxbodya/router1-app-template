@@ -179,7 +179,10 @@ module.exports = function makeWebpackConfig(options) {
       {
         '../build/stats.json': 'commonjs ../stats.json',
       },
-      ...nodeModules
+      ...nodeModules,
+      /^rxjs\//,
+      /^react\//,
+      /^react-dom\//
     );
 
     plugins.push(new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }));
