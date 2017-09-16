@@ -1,5 +1,5 @@
 if (process.env.GA_CODE) {
-  /*eslint-disable */
+  /* eslint-disable */
   (function (i, s, o, g, r, a, m) {
     i.GoogleAnalyticsObject = r;
     i[r] = i[r] || function () {
@@ -13,7 +13,7 @@ if (process.env.GA_CODE) {
     m.parentNode.insertBefore(a, m);
   })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
   window.ga('create', process.env.GA_CODE, 'auto');
-  /*eslint-enable */
+  /* eslint-enable */
 } else {
   window.ga = () => {
   };

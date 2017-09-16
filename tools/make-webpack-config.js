@@ -275,7 +275,20 @@ module.exports = function makeWebpackConfig(options) {
       },
     };
   } else if (options.hotComponents) {
-    babelLoader.use = ['react-hot-loader', 'babel-loader'];
+    babelLoader.use = [
+      'react-hot-loader',
+      {
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            'react',
+            'es2015',
+          ],
+          plugins: [
+            'transform-runtime',
+          ],
+        },
+      }];
   } else {
     babelLoader.use = ['babel-loader'];
   }

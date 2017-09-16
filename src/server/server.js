@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import ReactDOM from 'react-dom/server';
 import express from 'express';
 import path from 'path';
@@ -9,6 +10,7 @@ export function createServer(options) {
   const app = express();
 
   const render = options.render;
+  // eslint-disable-next-line import/no-unresolved
   const stats = require('../build/stats.json');
 
   const publicPath = stats.publicPath;

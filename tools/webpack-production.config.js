@@ -11,7 +11,6 @@ const config = [
   makeWebpackConfig({
     isServer: true,
     sourceMapSupport: true,
-    debug: true,
     devtool: 'source-map',
   }),
 ];
