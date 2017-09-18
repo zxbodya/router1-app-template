@@ -163,11 +163,7 @@ module.exports = function makeWebpackConfig(options) {
     },
   ];
 
-  const alias = {
-    router1: 'router1/src',
-    'router1-react': 'router1-react/src',
-    'rx-react-container': 'rx-react-container/src',
-  };
+  const alias = {};
 
   const aliasLoader = {};
   const externals = [];
@@ -307,10 +303,6 @@ module.exports = function makeWebpackConfig(options) {
     module: {
       rules: [
         babelLoader,
-        Object.assign({}, babelLoader, {
-          test: /node_modules\/(?:router1|router1-react|rx-react-container)\/src/,
-          exclude: undefined,
-        }),
       ]
         .concat(defaultLoaders)
         .concat(stylesheetLoaders),
@@ -325,8 +317,7 @@ module.exports = function makeWebpackConfig(options) {
       extensions: ['.web.js', '.js', '.jsx'],
       mainFields: (options.isServer ? [] : ['browser']).concat(
         'module',
-        // todo:
-        // 'jsnext:main',
+        'jsnext:main',
         'main'
       ),
       alias,

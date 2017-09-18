@@ -868,7 +868,7 @@ babel-register@^6.26.0:
     mkdirp "^0.5.1"
     source-map-support "^0.4.15"
 
-babel-runtime@^6.18.0, babel-runtime@^6.22.0, babel-runtime@^6.23.0, babel-runtime@^6.25.0:
+babel-runtime@^6.18.0, babel-runtime@^6.22.0:
   version "6.25.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.25.0.tgz#33b98eaa5d482bb01a8d1aa6b437ad2b01aec41c"
   dependencies:
@@ -5003,7 +5003,7 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.10, prop-types@^15.5.4:
+prop-types@^15.5.10:
   version "15.5.10"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.10.tgz#2797dfc3126182e3a95e3dfbb2e893ddd7456154"
   dependencies:
@@ -5430,18 +5430,13 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^2.0.0"
     inherits "^2.0.1"
 
-router1-react@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/router1-react/-/router1-react-0.7.1.tgz#d33e155bab44f1fb13a6988a040e0d6f1d3c5672"
-  dependencies:
-    babel-runtime "^6.23.0"
-    prop-types "^15.5.4"
+router1-react@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/router1-react/-/router1-react-0.8.0.tgz#0787eae406b5912b3bf6ea5a4fbdc717de774fcf"
 
-router1@^0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/router1/-/router1-0.6.1.tgz#d8145d8ad970458fce66902dabdcc36d724d2645"
-  dependencies:
-    babel-runtime "^6.23.0"
+router1@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/router1/-/router1-0.7.0.tgz#6533a3bede447794e7d85b82ff5f933f10e81337"
 
 run-async@^2.2.0:
   version "2.3.0"
@@ -5459,11 +5454,9 @@ rx-lite@*, rx-lite@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/rx-lite/-/rx-lite-4.0.8.tgz#0b1e11af8bc44836f04a6407e92da42467b79444"
 
-rx-react-container@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/rx-react-container/-/rx-react-container-0.3.0.tgz#55fb16616081910cfb23e690c6237b3b1607a120"
-  dependencies:
-    babel-runtime "^6.25.0"
+rx-react-container@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/rx-react-container/-/rx-react-container-0.4.0.tgz#f4e3c26ba8dc865c4828ebb572315968bf93f11f"
 
 rxjs@^5.4.3:
   version "5.4.3"
