@@ -19,7 +19,17 @@ import notFoundHandler from '../notFoundPage/notFoundHandler';
 
 import { ScrollManager } from './ScrollManager';
 
-const renderObservable = Observable.bindCallback(ReactDOM.render);
+let renderObservable;
+if (process.env.SSR === '1') {
+  // hydrate on first render instead of render of next
+  renderObservable = (...agrs) => {
+    renderObservable = Observable.bindCallback(ReactDOM.render);
+    return Observable.bindCallback(ReactDOM.hydrate)(...agrs);
+  };
+} else {
+  renderObservable = Observable.bindCallback(ReactDOM.render);
+}
+
 const appElement = document.getElementById('app');
 
 // helper for animated scrolling management

@@ -78,15 +78,23 @@ export function createServer(options) {
           res.write(content);
         });
         res.write('<div id="app">');
-        const html = view ? ReactDOM.renderToString(view) : '';
-        res.write(html);
-        res.write('</div>');
-
-        res.render('html-footer', {
-          scriptsUrl: SCRIPT_URL,
-          envParams,
-        }, (err, content) => res.write(content));
-        res.end();
+        const renderFooter = () => {
+          res.write('</div>');
+          res.render('html-footer', {
+            scriptsUrl: SCRIPT_URL,
+            envParams,
+          }, (err, content) => {
+            res.write(content);
+            res.end();
+          });
+        };
+        if (view) {
+          const stream = ReactDOM.renderToNodeStream(view);
+          stream.pipe(res, { end: false });
+          stream.on('end', renderFooter);
+        } else {
+          renderFooter();
+        }
       }
     }
 
