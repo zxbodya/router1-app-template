@@ -8,7 +8,6 @@ import 'rxjs/add/observable/empty';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 
-
 import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
 
@@ -35,7 +34,7 @@ const appElement = document.getElementById('app');
 // helper for animated scrolling management
 const sm = new ScrollManager();
 
-const onRendered = (routingResult) => {
+const onRendered = routingResult => {
   // side effects after state was rendered
   const locationSource = routingResult.location.source;
   const locationHash = routingResult.location.hash;
@@ -80,43 +79,43 @@ function updateMetaData(meta) {
 }
 
 function handlerFromDef(handler, transition) {
-  return toObservable(handler(transition.params))
-    .map(renderable => renderable && ({
-      hashChange,
-      onBeforeUnload() {
-        // by default do not prevent transition
-        return '';
-      },
-      render() {
-        const { redirect, view, meta } = renderable;
-        if (redirect) {
-          transition.forward(redirect);
-          return Observable.empty();
-        }
+  return toObservable(handler(transition.params)).map(
+    renderable =>
+      renderable && {
+        hashChange,
+        onBeforeUnload() {
+          // by default do not prevent transition
+          return '';
+        },
+        render() {
+          const { redirect, view, meta } = renderable;
+          if (redirect) {
+            transition.forward(redirect);
+            return Observable.empty();
+          }
 
-        updateMetaData(meta);
+          updateMetaData(meta);
 
-        return view.flatMap(
-          renderApp =>
-            renderObservable(
-              <RouterContext
-                router={transition.router}
-              >
-                {renderApp()}
-              </RouterContext>,
-              appElement
+          return view
+            .flatMap(renderApp =>
+              renderObservable(
+                <RouterContext router={transition.router}>
+                  {renderApp()}
+                </RouterContext>,
+                appElement
+              )
             )
-        )
-          .do(() => {
-            // after state was rendered, set beforeUnload listener
-            if (renderable.onBeforeUnload) {
-              this.onBeforeUnload = renderable.onBeforeUnload;
-            }
-            // do scroll effects after rendering
-            onRendered(transition);
-          });
-      },
-    }));
+            .do(() => {
+              // after state was rendered, set beforeUnload listener
+              if (renderable.onBeforeUnload) {
+                this.onBeforeUnload = renderable.onBeforeUnload;
+              }
+              // do scroll effects after rendering
+              onRendered(transition);
+            });
+        },
+      }
+  );
 }
 
 const router = new Router({
@@ -126,17 +125,15 @@ const router = new Router({
     if (transition.route.handlers.length) {
       return handlerFromDef(
         combineHandlersChain(transition.route.handlers),
-        transition);
+        transition
+      );
     }
 
-    return handlerFromDef(
-      notFoundHandler,
-      transition);
+    return handlerFromDef(notFoundHandler, transition);
   },
 });
 
-
-window.onbeforeunload = (e) => {
+window.onbeforeunload = e => {
   const returnValue = router.onBeforeUnload();
   if (returnValue) {
     e.returnValue = returnValue;

@@ -3,7 +3,6 @@ const fs = require('fs');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-
 module.exports = function makeWebpackConfig(options) {
   let entry;
 
@@ -121,20 +120,21 @@ module.exports = function makeWebpackConfig(options) {
   const devHost = process.env.DEV_SERVER_HOST || 'localhost';
   const devPort = process.env.DEV_SERVER_PORT || 2992;
 
-  const publicPath = options.devServer ?
-    `http://${devHost}:${devPort}/_assets/` :
-    '/_assets/';
+  const publicPath = options.devServer
+    ? `http://${devHost}:${devPort}/_assets/`
+    : '/_assets/';
 
   const output = {
     path: options.isServer
       ? path.join(__dirname, '..', 'build', 'server')
       : path.join(__dirname, '..', 'public', '_assets'),
     publicPath,
-    filename: `[name].js${options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''}`,
-    chunkFilename: (
-      (options.devServer ? '[id].js' : '[name].js')
-      + (options.longTermCaching && !options.isServer ? '?[chunkhash]' : '')
-    ),
+    filename: `[name].js${options.longTermCaching && !options.isServer
+      ? '?[chunkhash]'
+      : ''}`,
+    chunkFilename:
+      `${options.devServer ? '[id].js' : '[name].js'}` +
+      `${options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''}`,
     sourceMapFilename: 'debugging/[file].map',
     libraryTarget: options.isServer ? 'commonjs2' : undefined,
     pathinfo: options.debug,
@@ -144,7 +144,7 @@ module.exports = function makeWebpackConfig(options) {
   ];
   const plugins = [
     function statsPlugin() {
-      this.plugin('done', (stats) => {
+      this.plugin('done', stats => {
         const jsonStats = stats.toJson({
           chunkModules: true,
           exclude: excludeFromStats,
@@ -154,9 +154,15 @@ module.exports = function makeWebpackConfig(options) {
           fs.mkdirSync(path.join(__dirname, '..', 'build'));
         }
         if (!options.isServer) {
-          fs.writeFileSync(path.join(__dirname, '..', 'build', 'stats.json'), JSON.stringify(jsonStats));
+          fs.writeFileSync(
+            path.join(__dirname, '..', 'build', 'stats.json'),
+            JSON.stringify(jsonStats)
+          );
         } else {
-          fs.writeFileSync(path.join(__dirname, '..', 'build', 'serverStats.json'), JSON.stringify(jsonStats));
+          fs.writeFileSync(
+            path.join(__dirname, '..', 'build', 'serverStats.json'),
+            JSON.stringify(jsonStats)
+          );
         }
       });
     },
@@ -173,7 +179,9 @@ module.exports = function makeWebpackConfig(options) {
 
   if (options.isServer) {
     aliasLoader['react-proxy$'] = 'react-proxy/unavailable';
-    const nodeModules = fs.readdirSync(path.join(__dirname, '..', 'node_modules')).filter(x => x !== '.bin');
+    const nodeModules = fs
+      .readdirSync(path.join(__dirname, '..', 'node_modules'))
+      .filter(x => x !== '.bin');
     externals.push(
       {
         '../build/stats.json': 'commonjs ../stats.json',
@@ -187,13 +195,11 @@ module.exports = function makeWebpackConfig(options) {
     plugins.push(new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }));
     if (options.sourceMapSupport) {
       plugins.push(
-        new webpack.BannerPlugin(
-          {
-            banner: 'require("source-map-support").install();',
-            raw: true,
-            entryOnly: false,
-          }
-        )
+        new webpack.BannerPlugin({
+          banner: 'require("source-map-support").install();',
+          raw: true,
+          entryOnly: false,
+        })
       );
     }
   }
@@ -202,13 +208,14 @@ module.exports = function makeWebpackConfig(options) {
     plugins.push(
       new webpack.optimize.CommonsChunkPlugin({
         name: 'commons',
-        filename: `commons.js${options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''}`,
+        filename: `commons.js${options.longTermCaching && !options.isServer
+          ? '?[chunkhash]'
+          : ''}`,
       })
     );
   }
 
-
-  stylesheetLoaders = stylesheetLoaders.map((loaderIn) => {
+  stylesheetLoaders = stylesheetLoaders.map(loaderIn => {
     const loader = Object.assign({}, loaderIn);
     delete loader.use;
 
@@ -228,12 +235,16 @@ module.exports = function makeWebpackConfig(options) {
   if (options.separateStylesheet && !options.isServer) {
     plugins.push(
       new ExtractTextPlugin({
-        filename: `[name].css${options.longTermCaching ? '?[contenthash]' : ''}`,
+        filename: `[name].css${options.longTermCaching
+          ? '?[contenthash]'
+          : ''}`,
       })
     );
   }
   const definitions = {
-    'process.env.NODE_ENV': options.debug ? JSON.stringify('development') : JSON.stringify('production'),
+    'process.env.NODE_ENV': options.debug
+      ? JSON.stringify('development')
+      : JSON.stringify('production'),
   };
 
   if (options.minimize) {
@@ -252,9 +263,7 @@ module.exports = function makeWebpackConfig(options) {
     );
   }
 
-  plugins.push(
-    new webpack.DefinePlugin(definitions)
-  );
+  plugins.push(new webpack.DefinePlugin(definitions));
 
   if (options.hotComponents) {
     plugins.push(new webpack.HotModuleReplacementPlugin());
@@ -279,15 +288,11 @@ module.exports = function makeWebpackConfig(options) {
       {
         loader: 'babel-loader',
         options: {
-          presets: [
-            'react',
-            'es2015',
-          ],
-          plugins: [
-            'transform-runtime',
-          ],
+          presets: ['react', 'es2015'],
+          plugins: ['transform-runtime'],
         },
-      }];
+      },
+    ];
   } else {
     babelLoader.use = ['babel-loader'];
   }
@@ -304,19 +309,12 @@ module.exports = function makeWebpackConfig(options) {
     output,
     target: options.isServer ? 'node' : 'web',
     module: {
-      rules: [
-        babelLoader,
-      ]
-        .concat(defaultLoaders)
-        .concat(stylesheetLoaders),
+      rules: [babelLoader].concat(defaultLoaders).concat(stylesheetLoaders),
     },
     devtool: options.devtool,
     externals,
     resolve: {
-      modules: [
-        'web_modules',
-        'node_modules',
-      ],
+      modules: ['web_modules', 'node_modules'],
       extensions: ['.web.js', '.js', '.jsx'],
       mainFields: (options.isServer ? [] : ['browser']).concat(
         'module',

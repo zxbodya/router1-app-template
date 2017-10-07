@@ -15,22 +15,21 @@ function combineHandlersChain(handlers) {
 }
 
 function handlerFromDef(handler, transition) {
-  return toObservable(handler(transition.params))
-    .map(renderable => renderable && ({
-      hashChange() {
-      },
-      onBeforeUnload() {
-        return '';
-      },
-      render() {
-        const { view, redirect, status, meta } = renderable;
+  return toObservable(handler(transition.params)).map(
+    renderable =>
+      renderable && {
+        hashChange() {},
+        onBeforeUnload() {
+          return '';
+        },
+        render() {
+          const { view, redirect, status, meta } = renderable;
 
-        if (redirect) {
-          return Observable.of({ redirect, status });
-        }
+          if (redirect) {
+            return Observable.of({ redirect, status });
+          }
 
-        return view.map(
-          renderApp => ({
+          return view.map(renderApp => ({
             view: (
               <RouterContext router={transition.router}>
                 {renderApp()}
@@ -38,17 +37,16 @@ function handlerFromDef(handler, transition) {
             ),
             meta,
             status,
-          })
-        );
-      },
-    }));
+          }));
+        },
+      }
+  );
 }
 
 const routeCollection = new RouteCollection(routes);
 
 export function render(requestPath, cb) {
   const history = createServerHistory(requestPath);
-
 
   const router = new Router({
     history,
@@ -57,12 +55,11 @@ export function render(requestPath, cb) {
       if (transition.route.handlers.length) {
         return handlerFromDef(
           combineHandlersChain(transition.route.handlers),
-          transition);
+          transition
+        );
       }
 
-      return handlerFromDef(
-        notFoundHandler,
-        transition);
+      return handlerFromDef(notFoundHandler, transition);
     },
   });
 
@@ -70,7 +67,7 @@ export function render(requestPath, cb) {
     .renderResult()
     .first()
     .subscribe(
-      (data) => {
+      data => {
         cb(null, data);
       },
       error => cb(error),

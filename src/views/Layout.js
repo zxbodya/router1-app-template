@@ -8,11 +8,15 @@ function Layout(props) {
     <div>
       <ul>
         <li>
-          <Link route="home" activeClassName="active">Home</Link>
+          <Link route="home" activeClassName="active">
+            Home
+          </Link>
         </li>
 
         <li>
-          <Link route="contact" activeClassName="active">Contact</Link>
+          <Link route="contact" activeClassName="active">
+            Contact
+          </Link>
         </li>
       </ul>
       {props.children}

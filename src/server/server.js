@@ -20,13 +20,15 @@ export function createServer(options) {
   const SCRIPT_URL = publicPath + mainArr[0];
   // var COMMONS_URL = publicPath + [].concat(stats.assetsByChunkName.commons)[0];
 
-
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  app.use('/_assets', express.static(path.join('public', '_assets'), {
-    maxAge: '200d', // We can cache them as they include hashes
-  }));
+  app.use(
+    '/_assets',
+    express.static(path.join('public', '_assets'), {
+      maxAge: '200d', // We can cache them as they include hashes
+    })
+  );
 
   app.use('/', express.static(path.join('public'), {}));
   app.get('/favicon.ico', (req, res) => {
@@ -38,7 +40,6 @@ export function createServer(options) {
   app.set('views', path.join('src', 'server', 'templates'));
   // app.set('views', path.join(__dirname, 'templates'));
   app.set('view engine', 'ejs');
-
 
   // app.set('etag fn', (
   //   function (etag) {
@@ -70,23 +71,31 @@ export function createServer(options) {
         res.end();
       } else {
         res.status(status || 200);
-        res.render('html-head', {
-          title: meta.title,
-          description: meta.description,
-          stylesUrl: STYLE_URL,
-        }, (err, content) => {
-          res.write(content);
-        });
+        res.render(
+          'html-head',
+          {
+            title: meta.title,
+            description: meta.description,
+            stylesUrl: STYLE_URL,
+          },
+          (err, content) => {
+            res.write(content);
+          }
+        );
         res.write('<div id="app">');
         const renderFooter = () => {
           res.write('</div>');
-          res.render('html-footer', {
-            scriptsUrl: SCRIPT_URL,
-            envParams,
-          }, (err, content) => {
-            res.write(content);
-            res.end();
-          });
+          res.render(
+            'html-footer',
+            {
+              scriptsUrl: SCRIPT_URL,
+              envParams,
+            },
+            (err, content) => {
+              res.write(content);
+              res.end();
+            }
+          );
         };
         if (view) {
           const stream = ReactDOM.renderToNodeStream(view);

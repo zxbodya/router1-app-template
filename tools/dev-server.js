@@ -15,6 +15,7 @@ function waitForPort(port, address) {
   return Observable.create(observer => {
     let s;
     console.log(`waiting for "${address}:${port}"`);
+
     function connect() {
       s = new net.Socket();
       s.connect(port, address, () => {
@@ -40,7 +41,6 @@ function waitForPort(port, address) {
   });
 }
 
-
 const protocol = 'http';
 const devHost = process.env.DEV_SERVER_HOST || 'localhost';
 const devPort = process.env.DEV_SERVER_PORT || 2992;
@@ -56,27 +56,38 @@ const devServerConfig = isHot
 
 const backendConfig = require('./webpack-watch-server.config.js');
 
-const devClient = [`${require.resolve('webpack-dev-server/client/')}?${protocol}://${devHost}:${devPort}`];
+const devClient = [
+  `${require.resolve(
+    'webpack-dev-server/client/'
+  )}?${protocol}://${devHost}:${devPort}`,
+];
 
 if (isHot) {
   devClient.push(require.resolve('webpack/hot/dev-server'));
 }
 
-if (typeof devServerConfig.entry === 'object' && !Array.isArray(devServerConfig.entry)) {
-  Object
-    .keys(devServerConfig.entry)
-    .forEach((key) => {
-      devServerConfig.entry[key] = devClient.concat(devServerConfig.entry[key]);
-    });
+if (
+  typeof devServerConfig.entry === 'object' &&
+  !Array.isArray(devServerConfig.entry)
+) {
+  Object.keys(devServerConfig.entry).forEach(key => {
+    devServerConfig.entry[key] = devClient.concat(devServerConfig.entry[key]);
+  });
 } else {
   devServerConfig.entry = devClient.concat(devServerConfig.entry);
 }
 
 const frontStatus$ = new ReplaySubject();
 const frontEndCompiler = webpack(devServerConfig);
-frontEndCompiler.plugin('compile', () => frontStatus$.next({ status: 'compile' }));
-frontEndCompiler.plugin('invalid', () => frontStatus$.next({ status: 'invalid' }));
-frontEndCompiler.plugin('done', (stats) => frontStatus$.next({ status: 'done', stats }));
+frontEndCompiler.plugin('compile', () =>
+  frontStatus$.next({ status: 'compile' })
+);
+frontEndCompiler.plugin('invalid', () =>
+  frontStatus$.next({ status: 'invalid' })
+);
+frontEndCompiler.plugin('done', stats =>
+  frontStatus$.next({ status: 'done', stats })
+);
 
 const devServer = new WebpackDevServer(frontEndCompiler, {
   hot: isHot,
@@ -97,8 +108,7 @@ devServer.sockWrite = (sockets, type, data) => {
   notifications$.next({ sockets, type, data });
 };
 
-devServer.listen(devPort, devHost, () => {
-});
+devServer.listen(devPort, devHost, () => {});
 
 const withSSR = process.env.SSR === '1';
 
@@ -122,45 +132,54 @@ function startServer() {
     ext: 'noop',
     stdin: false,
     stdout: true,
-  })
-    .on('start', () => {
-      nodemonStart$.next('start');
-    });
+  }).on('start', () => {
+    nodemonStart$.next('start');
+  });
 }
 
 const backendStatus$ = new ReplaySubject();
 
 const backendCompiler = webpack(backendConfig);
-backendCompiler
-  .watch({
+backendCompiler.watch(
+  {
     aggregateTimeout: 300,
-  }, (err, stats) => {
+  },
+  (err, stats) => {
     if (err) {
       console.log('Error', err);
     } else {
-      console.log(stats.toString(Object.assign({ colors: true }, backendConfig.devServer.stats)));
+      console.log(
+        stats.toString(
+          Object.assign({ colors: true }, backendConfig.devServer.stats)
+        )
+      );
     }
-  });
+  }
+);
 
-backendCompiler.plugin('compile', () => backendStatus$.next({ status: 'compile' }));
-backendCompiler.plugin('invalid', () => backendStatus$.next({ status: 'invalid' }));
-backendCompiler.plugin('done', (stats) => backendStatus$.next({ status: 'done', stats }));
+backendCompiler.plugin('compile', () =>
+  backendStatus$.next({ status: 'compile' })
+);
+backendCompiler.plugin('invalid', () =>
+  backendStatus$.next({ status: 'invalid' })
+);
+backendCompiler.plugin('done', stats =>
+  backendStatus$.next({ status: 'done', stats })
+);
 
-Observable
-  .combineLatest(
-    frontStatus$.filter(({ status }) => status === 'done').first(),
-    backendStatus$.filter(({ status }) => status === 'done').first(),
-    startServer
-  )
-  .forEach(() => {
-    console.log('Starting dev server');
-    nodemonStart$
-      .first()
-      .flatMap(() => waitForPort(appPort, appHost))
-      .forEach(() => {
-        console.log('Dev server is ready');
-      });
-  });
+Observable.combineLatest(
+  frontStatus$.filter(({ status }) => status === 'done').first(),
+  backendStatus$.filter(({ status }) => status === 'done').first(),
+  startServer
+).forEach(() => {
+  console.log('Starting dev server');
+  nodemonStart$
+    .first()
+    .flatMap(() => waitForPort(appPort, appHost))
+    .forEach(() => {
+      console.log('Dev server is ready');
+    });
+});
 
 const isReady$ = backendStatus$
   .switchMap(({ status }) => {
@@ -175,32 +194,33 @@ const isReady$ = backendStatus$
   })
   .distinctUntilChanged();
 
-
 notifications$
-  .combineLatest(
-    isReady$,
-    (notification, isReady) => ({ notification, isReady })
+  .combineLatest(isReady$, (notification, isReady) => ({
+    notification,
+    isReady,
+  }))
+  .scan(
+    ({ buffer, prev }, { notification, isReady }) => {
+      const nextBuffer =
+        notification !== prev ? [...buffer, notification] : buffer;
+      if (isReady) {
+        return { emit: nextBuffer, buffer: [], prev: notification };
+      }
+      return { buffer: nextBuffer, prev: notification };
+    },
+    { buffer: [] }
   )
-  .scan(({ buffer, prev }, { notification, isReady }) => {
-    const nextBuffer = notification !== prev ? [...buffer, notification] : buffer;
-    if (isReady) {
-      return { emit: nextBuffer, buffer: [], prev: notification };
-    }
-    return { buffer: nextBuffer, prev: notification };
-  }, { buffer: [] })
   .filter(({ emit }) => !!emit)
   .forEach(({ emit }) =>
-    emit.forEach(
-      v => {
-        try {
-          const { sockets, type, data } = v;
-          sockWrite(sockets, type, data);
-          console.log('websocket notification, type:', type);
-        } catch (e) {
-          console.log('skip, websocket notification');
-        }
+    emit.forEach(v => {
+      try {
+        const { sockets, type, data } = v;
+        sockWrite(sockets, type, data);
+        console.log('websocket notification, type:', type);
+      } catch (e) {
+        console.log('skip, websocket notification');
       }
-    )
+    })
   );
 
 // workaround for nodemon
