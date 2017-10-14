@@ -11,7 +11,7 @@ const easeInOutQuad = (t, b, c, d) => {
 };
 /* eslint-enable */
 
-const noop = () => 0;
+const noop = () => {};
 
 export class ScrollManager {
   constructor(options = {}) {

@@ -142,31 +142,60 @@ module.exports = function makeWebpackConfig(options) {
   const excludeFromStats = [
     // /node_modules[\\/]react(-router)?[\\/]/,
   ];
-  const plugins = [
-    function statsPlugin() {
-      this.plugin('done', stats => {
-        const jsonStats = stats.toJson({
-          chunkModules: true,
-          exclude: excludeFromStats,
-        });
-        jsonStats.publicPath = publicPath;
-        if (!fs.existsSync(path.join(__dirname, '..', 'build'))) {
-          fs.mkdirSync(path.join(__dirname, '..', 'build'));
-        }
-        if (!options.isServer) {
-          fs.writeFileSync(
-            path.join(__dirname, '..', 'build', 'stats.json'),
-            JSON.stringify(jsonStats)
-          );
-        } else {
-          fs.writeFileSync(
-            path.join(__dirname, '..', 'build', 'serverStats.json'),
-            JSON.stringify(jsonStats)
-          );
-        }
+  const assetsPlugin = function assetsPlugin() {
+    this.plugin('done', stats => {
+      const jsonStats = stats.toJson({
+        hash: true,
+        publicPath: true,
+        assets: true,
+        chunks: false,
+        modules: false,
+        source: false,
+        errorDetails: false,
+        timings: false,
       });
-    },
-  ];
+
+      jsonStats.publicPath = publicPath;
+      if (!fs.existsSync(path.join(__dirname, '..', 'build'))) {
+        fs.mkdirSync(path.join(__dirname, '..', 'build'));
+      }
+      if (!options.isServer) {
+        fs.writeFileSync(
+          path.join(__dirname, '..', 'build', 'assets.json'),
+          JSON.stringify(jsonStats)
+        );
+      }
+    });
+  };
+  const statsPlugin = function statsPlugin() {
+    this.plugin('done', stats => {
+      const jsonStats = stats.toJson({
+        chunkModules: true,
+        exclude: excludeFromStats,
+      });
+      jsonStats.publicPath = publicPath;
+      if (!fs.existsSync(path.join(__dirname, '..', 'build'))) {
+        fs.mkdirSync(path.join(__dirname, '..', 'build'));
+      }
+      if (!options.isServer) {
+        fs.writeFileSync(
+          path.join(__dirname, '..', 'build', 'stats.json'),
+          JSON.stringify(jsonStats)
+        );
+      } else {
+        fs.writeFileSync(
+          path.join(__dirname, '..', 'build', 'serverStats.json'),
+          JSON.stringify(jsonStats)
+        );
+      }
+    });
+  };
+
+  const plugins = [assetsPlugin];
+
+  if (!options.devServer) {
+    plugins.push(statsPlugin);
+  }
 
   if (options.minimize) {
     plugins.push(new webpack.optimize.ModuleConcatenationPlugin());
@@ -184,7 +213,7 @@ module.exports = function makeWebpackConfig(options) {
       .filter(x => x !== '.bin');
     externals.push(
       {
-        '../build/stats.json': 'commonjs ../stats.json',
+        '../build/assets.json': 'commonjs ../assets.json',
       },
       ...nodeModules,
       /^rxjs\//,

@@ -11,7 +11,7 @@ export function createServer(options) {
 
   const render = options.render;
   // eslint-disable-next-line import/no-unresolved
-  const stats = require('../build/stats.json');
+  const stats = require('../build/assets.json');
 
   const publicPath = stats.publicPath;
 
