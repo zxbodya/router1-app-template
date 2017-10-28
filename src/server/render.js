@@ -1,10 +1,10 @@
 import React from 'react';
 import { createServerHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/first';
-import 'rxjs/add/operator/switchMap';
+
+import { of } from 'rxjs/observable/of';
+import { map } from 'rxjs/operators/map';
+import { first } from 'rxjs/operators/first';
 
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 import routes from '../routes';
@@ -15,31 +15,35 @@ function combineHandlersChain(handlers) {
 }
 
 function handlerFromDef(handler, transition) {
-  return toObservable(handler(transition.params)).map(
-    renderable =>
-      renderable && {
-        hashChange() {},
-        onBeforeUnload() {
-          return '';
-        },
-        render() {
-          const { view, redirect, status, meta } = renderable;
+  return toObservable(handler(transition.params)).pipe(
+    map(
+      renderable =>
+        renderable && {
+          hashChange() {},
+          onBeforeUnload() {
+            return '';
+          },
+          render() {
+            const { view, redirect, status, meta } = renderable;
 
-          if (redirect) {
-            return Observable.of({ redirect, status });
-          }
+            if (redirect) {
+              return of({ redirect, status });
+            }
 
-          return view.map(renderApp => ({
-            view: (
-              <RouterContext router={transition.router}>
-                {renderApp()}
-              </RouterContext>
-            ),
-            meta,
-            status,
-          }));
-        },
-      }
+            return view.pipe(
+              map(renderApp => ({
+                view: (
+                  <RouterContext router={transition.router}>
+                    {renderApp()}
+                  </RouterContext>
+                ),
+                meta,
+                status,
+              }))
+            );
+          },
+        }
+    )
   );
 }
 
@@ -65,7 +69,7 @@ export function render(requestPath, cb) {
 
   router
     .renderResult()
-    .first()
+    .pipe(first())
     .subscribe(
       data => {
         cb(null, data);

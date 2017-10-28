@@ -2,11 +2,11 @@ import React from 'react';
 
 import ReactDOM from 'react-dom';
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/bindCallback';
-import 'rxjs/add/observable/empty';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/do';
+import { bindCallback } from 'rxjs/observable/bindCallback';
+import { empty } from 'rxjs/observable/empty';
+import { map } from 'rxjs/operators/map';
+import { tap } from 'rxjs/operators/tap';
+import { mergeMap } from 'rxjs/operators/mergeMap';
 
 import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
@@ -22,11 +22,11 @@ let renderObservable;
 if (process.env.SSR === '1') {
   // hydrate on first render instead of render of next
   renderObservable = (...agrs) => {
-    renderObservable = Observable.bindCallback(ReactDOM.render);
-    return Observable.bindCallback(ReactDOM.hydrate)(...agrs);
+    renderObservable = bindCallback(ReactDOM.render);
+    return bindCallback(ReactDOM.hydrate)(...agrs);
   };
 } else {
-  renderObservable = Observable.bindCallback(ReactDOM.render);
+  renderObservable = bindCallback(ReactDOM.render);
 }
 
 const appElement = document.getElementById('app');
@@ -79,42 +79,45 @@ function updateMetaData(meta) {
 }
 
 function handlerFromDef(handler, transition) {
-  return toObservable(handler(transition.params)).map(
-    renderable =>
-      renderable && {
-        hashChange,
-        onBeforeUnload() {
-          // by default do not prevent transition
-          return '';
-        },
-        render() {
-          const { redirect, view, meta } = renderable;
-          if (redirect) {
-            transition.forward(redirect);
-            return Observable.empty();
-          }
+  return toObservable(handler(transition.params)).pipe(
+    map(
+      renderable =>
+        renderable && {
+          hashChange,
+          onBeforeUnload() {
+            // by default do not prevent transition
+            return '';
+          },
+          render() {
+            const { redirect, view, meta } = renderable;
+            if (redirect) {
+              transition.forward(redirect);
+              return empty();
+            }
 
-          updateMetaData(meta);
+            updateMetaData(meta);
 
-          return view
-            .flatMap(renderApp =>
-              renderObservable(
-                <RouterContext router={transition.router}>
-                  {renderApp()}
-                </RouterContext>,
-                appElement
-              )
-            )
-            .do(() => {
-              // after state was rendered, set beforeUnload listener
-              if (renderable.onBeforeUnload) {
-                this.onBeforeUnload = renderable.onBeforeUnload;
-              }
-              // do scroll effects after rendering
-              onRendered(transition);
-            });
-        },
-      }
+            return view.pipe(
+              mergeMap(renderApp =>
+                renderObservable(
+                  <RouterContext router={transition.router}>
+                    {renderApp()}
+                  </RouterContext>,
+                  appElement
+                )
+              ),
+              tap(() => {
+                // after state was rendered, set beforeUnload listener
+                if (renderable.onBeforeUnload) {
+                  this.onBeforeUnload = renderable.onBeforeUnload;
+                }
+                // do scroll effects after rendering
+                onRendered(transition);
+              })
+            );
+          },
+        }
+    )
   );
 }
 

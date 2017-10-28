@@ -203,6 +203,9 @@ module.exports = function makeWebpackConfig(options) {
 
   const alias = {};
 
+  const rxPaths = require('rxjs/_esm5/path-mapping');
+  Object.assign(alias, rxPaths);
+
   const aliasLoader = {};
   const externals = [];
 
