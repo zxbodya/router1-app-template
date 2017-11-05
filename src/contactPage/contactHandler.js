@@ -1,4 +1,4 @@
-import createContainer from 'rx-react-container';
+import React from 'react';
 import Contact from './Contact';
 
 export default function() {
@@ -7,6 +7,6 @@ export default function() {
       title: 'Contact us',
       description: "Don't hesitate to email us today",
     },
-    view: createContainer(Contact),
+    view: <Contact />,
   };
 }

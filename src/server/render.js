@@ -8,6 +8,7 @@ import { first } from 'rxjs/operators/first';
 
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 import routes from '../routes';
+
 import toObservable from '../utils/toObservable';
 
 function combineHandlersChain(handlers) {
@@ -30,17 +31,13 @@ function handlerFromDef(handler, transition) {
               return of({ redirect, status });
             }
 
-            return view.pipe(
-              map(renderApp => ({
-                view: (
-                  <RouterContext router={transition.router}>
-                    {renderApp()}
-                  </RouterContext>
-                ),
-                meta,
-                status,
-              }))
-            );
+            return of({
+              view: (
+                <RouterContext router={transition.router}>{view}</RouterContext>
+              ),
+              meta,
+              status,
+            });
           },
         }
     )

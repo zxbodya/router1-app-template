@@ -1,4 +1,4 @@
-import createContainer from 'rx-react-container';
+import React from 'react';
 import NotFound from './NotFound';
 
 export default function() {
@@ -9,6 +9,6 @@ export default function() {
       description:
         'Sorry, but the page you were trying to view does not exist.',
     },
-    view: createContainer(NotFound),
+    view: <NotFound />,
   };
 }

@@ -1,4 +1,4 @@
-import createContainer from 'rx-react-container';
+import React from 'react';
 import Home from './Home';
 
 export default function() {
@@ -7,6 +7,6 @@ export default function() {
       title: 'Home page',
       description: 'home page description',
     },
-    view: createContainer(Home),
+    view: <Home />,
   };
 }

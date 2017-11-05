@@ -1,12 +1,10 @@
 import React from 'react';
-
 import ReactDOM from 'react-dom';
 
 import { bindCallback } from 'rxjs/observable/bindCallback';
 import { empty } from 'rxjs/observable/empty';
 import { map } from 'rxjs/operators/map';
 import { tap } from 'rxjs/operators/tap';
-import { mergeMap } from 'rxjs/operators/mergeMap';
 
 import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
@@ -97,15 +95,10 @@ function handlerFromDef(handler, transition) {
 
             updateMetaData(meta);
 
-            return view.pipe(
-              mergeMap(renderApp =>
-                renderObservable(
-                  <RouterContext router={transition.router}>
-                    {renderApp()}
-                  </RouterContext>,
-                  appElement
-                )
-              ),
+            return renderObservable(
+              <RouterContext router={transition.router}>{view}</RouterContext>,
+              appElement
+            ).pipe(
               tap(() => {
                 // after state was rendered, set beforeUnload listener
                 if (renderable.onBeforeUnload) {
