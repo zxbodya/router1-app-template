@@ -14,7 +14,7 @@ import toObservable from '../utils/toObservable';
 import routes from '../routes';
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 
-import { ScrollManager } from './ScrollManager';
+import { hashChange, scrollAfterRendered } from './scrollHelpers';
 
 let renderObservable;
 if (process.env.SSR === '1') {
@@ -28,41 +28,6 @@ if (process.env.SSR === '1') {
 }
 
 const appElement = document.getElementById('app');
-
-// helper for animated scrolling management
-const sm = new ScrollManager();
-
-const onRendered = routingResult => {
-  // side effects after state was rendered
-  const locationSource = routingResult.location.source;
-  const locationHash = routingResult.location.hash;
-
-  // case when scrolling was implicitly disabled in state params
-  if (routingResult.location.state.noscroll) return;
-  // should scroll only on this location sources
-  if (locationSource === 'push' || locationSource === 'replace') {
-    let target;
-    if (locationHash !== '') {
-      target = document.getElementById(locationHash);
-    }
-
-    if (target) {
-      sm.scrollToElement(target, false);
-    } else {
-      sm.scrollTo(0, 0, false);
-    }
-  }
-};
-
-function combineHandlersChain(handlers) {
-  return handlers[0];
-}
-
-const hashChange = ({ hash, source }) => {
-  sm.cancelScrollAnimation();
-  if (source !== 'push' && source !== 'replace') return;
-  sm.scrollToAnchor(hash, true);
-};
 
 // helper to update page meta information after transition
 function updateMetaData(meta) {
@@ -87,8 +52,10 @@ function handlerFromDef(handler, transition) {
             return '';
           },
           render() {
-            const { redirect, view, meta } = renderable;
+            const { view, redirect, meta } = renderable;
+
             if (redirect) {
+              // forward to new location on same transition
               transition.forward(redirect);
               return empty();
             }
@@ -104,8 +71,7 @@ function handlerFromDef(handler, transition) {
                 if (renderable.onBeforeUnload) {
                   this.onBeforeUnload = renderable.onBeforeUnload;
                 }
-                // do scroll effects after rendering
-                onRendered(transition);
+                scrollAfterRendered(transition);
               })
             );
           },
@@ -114,19 +80,28 @@ function handlerFromDef(handler, transition) {
   );
 }
 
-const router = new Router({
-  history: createBrowserHistory(),
-  routeCollection: new RouteCollection(routes),
-  createHandler(transition) {
-    if (transition.route.handlers.length) {
-      return handlerFromDef(
-        combineHandlersChain(transition.route.handlers),
-        transition
-      );
-    }
+function combineHandlersChain(handlers) {
+  return handlers[0];
+}
+function createHandler(transition) {
+  if (transition.route.handlers.length) {
+    return handlerFromDef(
+      combineHandlersChain(transition.route.handlers),
+      transition
+    );
+  }
 
-    return handlerFromDef(notFoundHandler, transition);
-  },
+  return handlerFromDef(notFoundHandler, transition);
+}
+
+const routeCollection = new RouteCollection(routes);
+
+const history = createBrowserHistory();
+
+const router = new Router({
+  history,
+  routeCollection,
+  createHandler,
 });
 
 window.onbeforeunload = e => {
