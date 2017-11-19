@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom';
 
 import { bindCallback } from 'rxjs/observable/bindCallback';
 import { empty } from 'rxjs/observable/empty';
-import { map } from 'rxjs/operators/map';
-import { tap } from 'rxjs/operators/tap';
 
 import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
@@ -14,7 +12,7 @@ import toObservable from '../utils/toObservable';
 import routes from '../routes';
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 
-import { hashChange, scrollAfterRendered } from './scrollHelpers';
+import { onHashChange, scrollAfterRendered } from './scrollHelpers';
 
 let renderObservable;
 if (process.env.SSR === '1') {
@@ -41,57 +39,43 @@ function updateMetaData(meta) {
   }
 }
 
-function handlerFromDef(handler, transition) {
-  return toObservable(handler(transition.params)).pipe(
-    map(
-      renderable =>
-        renderable && {
-          hashChange,
-          onBeforeUnload() {
-            // by default do not prevent transition
-            return '';
-          },
-          render() {
-            const { view, redirect, meta } = renderable;
+function loadState(transition) {
+  let handler;
+  if (transition.route.handlers.length) {
+    handler = transition.route.handlers[0];
+  } else {
+    handler = notFoundHandler;
+  }
 
-            if (redirect) {
-              // forward to new location on same transition
-              transition.forward(redirect);
-              return empty();
-            }
+  return toObservable(handler(transition.params));
+}
 
-            updateMetaData(meta);
+function renderState(state, transition) {
+  const { view, redirect, meta } = state;
 
-            return renderObservable(
-              <RouterContext router={transition.router}>{view}</RouterContext>,
-              appElement
-            ).pipe(
-              tap(() => {
-                // after state was rendered, set beforeUnload listener
-                if (renderable.onBeforeUnload) {
-                  this.onBeforeUnload = renderable.onBeforeUnload;
-                }
-                scrollAfterRendered(transition);
-              })
-            );
-          },
-        }
-    )
+  if (redirect) {
+    // forward to new location on same transition
+    transition.forward(redirect);
+    return empty();
+  }
+
+  updateMetaData(meta);
+
+  return renderObservable(
+    <RouterContext router={transition.router}>{view}</RouterContext>,
+    appElement
   );
 }
 
-function combineHandlersChain(handlers) {
-  return handlers[0];
-}
-function createHandler(transition) {
-  if (transition.route.handlers.length) {
-    return handlerFromDef(
-      combineHandlersChain(transition.route.handlers),
-      transition
-    );
+function afterRender(stateHandler, { state, transition }) {
+  // after state was rendered
+  if (state.onBeforeUnload) {
+    stateHandler.onBeforeUnload = state.onBeforeUnload;
   }
-
-  return handlerFromDef(notFoundHandler, transition);
+  if (state.onHashChange) {
+    stateHandler.onHashChange = state.onHashChange;
+  }
+  scrollAfterRendered(transition);
 }
 
 const routeCollection = new RouteCollection(routes);
@@ -101,7 +85,10 @@ const history = createBrowserHistory();
 const router = new Router({
   history,
   routeCollection,
-  createHandler,
+  loadState,
+  onHashChange,
+  renderState,
+  afterRender,
 });
 
 window.onbeforeunload = e => {

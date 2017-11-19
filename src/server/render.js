@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { of } from 'rxjs/observable/of';
-import { map } from 'rxjs/operators/map';
 import { first } from 'rxjs/operators/first';
 
 import { createServerHistory, Router, RouteCollection } from 'router1';
@@ -12,51 +11,30 @@ import toObservable from '../utils/toObservable';
 import routes from '../routes';
 import notFoundHandler from '../notFoundPage/notFoundHandler';
 
-const hashChange = () => {};
-
-function handlerFromDef(handler, transition) {
-  return toObservable(handler(transition.params)).pipe(
-    map(
-      renderable =>
-        renderable && {
-          hashChange,
-          onBeforeUnload() {
-            // by default do not prevent transition
-            return '';
-          },
-          render() {
-            const { view, redirect, status, meta } = renderable;
-
-            if (redirect) {
-              // return redirect to be sent for user
-              return of({ redirect, status });
-            }
-
-            return of({
-              view: (
-                <RouterContext router={transition.router}>{view}</RouterContext>
-              ),
-              meta,
-              status,
-            });
-          },
-        }
-    )
-  );
-}
-
-function combineHandlersChain(handlers) {
-  return handlers[0];
-}
-function createHandler(transition) {
+function loadState(transition) {
+  let handler;
   if (transition.route.handlers.length) {
-    return handlerFromDef(
-      combineHandlersChain(transition.route.handlers),
-      transition
-    );
+    handler = transition.route.handlers[0];
+  } else {
+    handler = notFoundHandler;
   }
 
-  return handlerFromDef(notFoundHandler, transition);
+  return toObservable(handler(transition.params));
+}
+
+function renderState(state, transition) {
+  const { view, redirect, status, meta } = state;
+
+  if (redirect) {
+    // return redirect to be sent for user
+    return of({ redirect, status });
+  }
+
+  return of({
+    view: <RouterContext router={transition.router}>{view}</RouterContext>,
+    meta,
+    status,
+  });
 }
 
 const routeCollection = new RouteCollection(routes);
@@ -67,7 +45,8 @@ export function render(requestPath, cb) {
   const router = new Router({
     history,
     routeCollection,
-    createHandler,
+    loadState,
+    renderState,
   });
 
   router

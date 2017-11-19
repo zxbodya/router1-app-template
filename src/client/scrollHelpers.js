@@ -24,7 +24,7 @@ export function scrollAfterRendered(routingResult) {
   }
 }
 
-export function hashChange({ hash, source }) {
+export function onHashChange({ hash, source }) {
   sm.cancelScrollAnimation();
   if (source !== 'push' && source !== 'replace') return;
   sm.scrollToAnchor(hash, true);
