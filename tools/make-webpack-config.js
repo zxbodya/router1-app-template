@@ -13,7 +13,7 @@ module.exports = function makeWebpackConfig(options) {
     };
   } else {
     entry = {
-      main: './src/client/index.js',
+      main: ['core-js/es6/map', 'core-js/es6/set', './src/client/index.js'],
     };
   }
 
@@ -129,9 +129,9 @@ module.exports = function makeWebpackConfig(options) {
       ? path.join(__dirname, '..', 'build', 'server')
       : path.join(__dirname, '..', 'public', '_assets'),
     publicPath,
-    filename: `[name].js${options.longTermCaching && !options.isServer
-      ? '?[chunkhash]'
-      : ''}`,
+    filename: `[name].js${
+      options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''
+    }`,
     chunkFilename:
       `${options.devServer ? '[id].js' : '[name].js'}` +
       `${options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''}`,
@@ -240,9 +240,9 @@ module.exports = function makeWebpackConfig(options) {
     plugins.push(
       new webpack.optimize.CommonsChunkPlugin({
         name: 'commons',
-        filename: `commons.js${options.longTermCaching && !options.isServer
-          ? '?[chunkhash]'
-          : ''}`,
+        filename: `commons.js${
+          options.longTermCaching && !options.isServer ? '?[chunkhash]' : ''
+        }`,
       })
     );
   }
@@ -267,9 +267,9 @@ module.exports = function makeWebpackConfig(options) {
   if (options.separateStylesheet && !options.isServer) {
     plugins.push(
       new ExtractTextPlugin({
-        filename: `[name].css${options.longTermCaching
-          ? '?[contenthash]'
-          : ''}`,
+        filename: `[name].css${
+          options.longTermCaching ? '?[contenthash]' : ''
+        }`,
       })
     );
   }

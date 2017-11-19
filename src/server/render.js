@@ -6,21 +6,8 @@ import { first } from 'rxjs/operators/first';
 import { createServerHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
 
-import toObservable from '../utils/toObservable';
-
 import routes from '../routes';
-import notFoundHandler from '../notFoundPage/notFoundHandler';
-
-function loadState(transition) {
-  let handler;
-  if (transition.route.handlers.length) {
-    handler = transition.route.handlers[0];
-  } else {
-    handler = notFoundHandler;
-  }
-
-  return toObservable(handler(transition.params));
-}
+import { loadState } from '../loadState';
 
 function renderState(state, transition) {
   const { view, redirect, status, meta } = state;

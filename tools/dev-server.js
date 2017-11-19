@@ -57,9 +57,9 @@ const devServerConfig = isHot
 const backendConfig = require('./webpack-watch-server.config.js');
 
 const devClient = [
-  `${require.resolve(
-    'webpack-dev-server/client/'
-  )}?${protocol}://${devHost}:${devPort}`,
+  `${require.resolve('webpack-dev-server/client/')}?${protocol}://${devHost}:${
+    devPort
+  }`,
 ];
 
 if (isHot) {
