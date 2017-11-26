@@ -61,6 +61,12 @@ Also you can enable some other things for dev-server by environment variables
 
 For setting those variables - you can create `.env` file at project root.
 
+## React Hot Loader
+
+Configuration is not complete, and right now is not in usable state by default.
+
+To fix it you need to add `module.hot.accept` code. See https://github.com/gaearon/react-hot-loader#getting-started for details(step 4). 
+ 
 ## Production compilation and server
 
 Build sources:

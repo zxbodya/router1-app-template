@@ -8,8 +8,8 @@ module.exports = function makeWebpackConfig(options) {
 
   if (options.isServer) {
     entry = {
-      ssr: './src/server/ssr.js',
-      nossr: './src/server/nossr.js',
+      ssr: ['./src/server/ssr.js'],
+      nossr: ['./src/server/nossr.js'],
     };
   } else {
     entry = {
@@ -20,6 +20,9 @@ module.exports = function makeWebpackConfig(options) {
         './src/client/index.js',
       ],
     };
+    if (options.hotComponents) {
+      entry.main.unshift('react-hot-loader/patch');
+    }
   }
 
   const defaultLoaders = [
@@ -320,16 +323,21 @@ module.exports = function makeWebpackConfig(options) {
       },
     };
   } else if (options.hotComponents) {
-    babelLoader.use = [
-      'react-hot-loader',
-      {
-        loader: 'babel-loader',
-        options: {
-          presets: ['react', 'es2015'],
-          plugins: ['transform-runtime'],
-        },
+    babelLoader.use = {
+      loader: 'babel-loader',
+      options: {
+        presets: [
+          'react',
+          [
+            'es2015',
+            {
+              modules: false,
+            },
+          ],
+        ],
+        plugins: ['transform-runtime', 'react-hot-loader/babel'],
       },
-    ];
+    };
   } else {
     babelLoader.use = ['babel-loader'];
   }
