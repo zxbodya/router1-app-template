@@ -9,5 +9,7 @@ export function loadState(transition) {
     handler = notFoundHandler;
   }
 
-  return toObservable(handler(transition.params));
+  return toObservable(
+    handler(transition.params, { router: transition.router })
+  );
 }

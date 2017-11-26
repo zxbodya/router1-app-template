@@ -13,7 +13,12 @@ module.exports = function makeWebpackConfig(options) {
     };
   } else {
     entry = {
-      main: ['core-js/es6/map', 'core-js/es6/set', './src/client/index.js'],
+      main: [
+        'raf/polyfill',
+        'core-js/es6/map',
+        'core-js/es6/set',
+        './src/client/index.js',
+      ],
     };
   }
 

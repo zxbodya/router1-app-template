@@ -1,5 +1,3 @@
-import raf from 'raf';
-
 /* eslint-disable */
 const easeInOutQuad = (t, b, c, d) => {
   // t: current time, b: beginning value, c: change in value, d: duration
@@ -42,7 +40,7 @@ export class ScrollManager {
           this.easing(elapsed, startLeft, left - startLeft, this.duration),
           this.easing(elapsed, startTop, top - startTop, this.duration)
         );
-        id = raf(animate);
+        id = window.requestAnimationFrame(animate);
       }
     };
 
@@ -50,7 +48,7 @@ export class ScrollManager {
 
     this.cancelScrollAnimation = () => {
       this.cancel = true;
-      raf.cancel(id);
+      window.cancelAnimationFrame(id);
       this.cancelScrollAnimation = noop;
       done();
     };
@@ -65,7 +63,7 @@ export class ScrollManager {
       });
     } else {
       this.cancelScrollAnimation();
-      raf(() => {
+      window.requestAnimationFrame(() => {
         window.scrollTo(left, top);
       });
     }

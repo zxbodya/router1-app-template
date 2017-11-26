@@ -8,13 +8,13 @@ import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
 
 import './env';
-import './ga';
 import './index.scss';
 
 import routes from '../routes';
 
 import { onHashChange, scrollAfterRendered } from './scrollHelpers';
 import { loadState } from '../loadState';
+import { updatePageMeta } from '../utils/updatePageMeta';
 
 let renderObservable;
 if (process.env.SSR === '1') {
@@ -29,28 +29,17 @@ if (process.env.SSR === '1') {
 
 const appElement = document.getElementById('app');
 
-// helper to update page meta information after transition
-function updateMetaData(meta) {
-  document.title = meta.title || '';
-  const descList = document.getElementsByName('description');
-  for (let i = 0; i < descList.length; i += 1) {
-    const e = descList[i];
-    if (e.tagName === 'META') {
-      e.setAttribute('content', meta.description || '');
-    }
-  }
-}
-
 function renderState(state, transition) {
   const { view, redirect, meta } = state;
 
   if (redirect) {
     // forward to new location on same transition
     transition.forward(redirect);
+    // since nothing needs to be rendered - return empty observable
     return empty();
   }
 
-  updateMetaData(meta);
+  updatePageMeta(meta);
 
   return renderObservable(
     <RouterContext router={transition.router}>{view}</RouterContext>,
@@ -61,11 +50,14 @@ function renderState(state, transition) {
 function afterRender(stateHandler, { state, transition }) {
   // after state was rendered
   if (state.onBeforeUnload) {
+    // if state provides before unload hook - replace default with it
     stateHandler.onBeforeUnload = state.onBeforeUnload;
   }
   if (state.onHashChange) {
+    // if state provides hash change handler - replace default with it
     stateHandler.onHashChange = state.onHashChange;
   }
+  // do required scrolling after rendering
   scrollAfterRendered(transition);
 }
 
@@ -92,7 +84,7 @@ window.onbeforeunload = e => {
 };
 
 router.renderResult().forEach(() => {
-  window.ga('send', 'pageview', window.location.pathname);
+  // pageview
 });
 
 router.start();
