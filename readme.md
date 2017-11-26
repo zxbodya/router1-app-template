@@ -3,7 +3,7 @@ React + RxJS + Router1 Application template
 
 Application starter template.
 
-Intended to be used for implementing single page applications with possibility to implement server side rendering. 
+Intended to be used for implementing single page applications with possibility to have server side rendering. 
  
 Following libraries are used:
 
@@ -36,7 +36,7 @@ In result it removes some frustration, especially when changing code shared betw
 
 ## Development environment setup
 
-0. Check your Node.js version - it should be version 6 or later
+0. Check your Node.js version - it should be version 8 or later
 1. Install dependencies using npm (or yarn)
 2. start server app, with automatic recompile and reload when something changes
     - `npm run dev`
@@ -96,21 +96,3 @@ Also I like using [webpack-bundle-analyzer](https://github.com/th0r/webpack-bund
 ### Loaders and file types
 
 Many file types are preconfigured, but not every loader is installed. If you get an error like `Cannot find module "xxx-loader"`, you'll need to install the loader with `npm install xxx-loader --save` and restart the compilation.
-
-
-### Common changes to the configuration
-
-#### Switch devtool to SourceMaps
-
-Change `devtool` property in `webpack-dev-server.config.js` and `webpack-hot-dev-server.config.js` to `"source-map"` (better module names) or `"eval-source-map"` (faster compilation).
-
-SourceMaps have a performance impact on compilation.
-
-#### Enable SourceMaps in production
-
-1. Uncomment the `devtool` line in `webpack-production.config.js`.
-2. Make sure that the folder `build/public/debugging` is access controlled, i. e. by password.
-
-SourceMaps have a performance impact on compilation.
-
-SourceMaps contains your un-minimized source code, so you need to restrict access to `build/public/debugging`.

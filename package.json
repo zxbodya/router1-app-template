@@ -1,7 +1,7 @@
 {
   "private": true,
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "scripts": {
     "build": "rimraf build public/_assets && webpack --config tools/webpack-production.config.js --progress --colors --bail",

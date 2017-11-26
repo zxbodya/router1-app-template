@@ -5,41 +5,11 @@ const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 const nodemon = require('nodemon');
 
-const { Observable, ReplaySubject, Subject } = require('rxjs');
+const { Observable, Subject } = require('rxjs');
 
-const net = require('net');
+const { waitForPort } = require('./waitForPort');
 
-console.log('Starting development server…');
-
-function waitForPort(port, address) {
-  return Observable.create(observer => {
-    let s;
-    console.log(`waiting for "${address}:${port}"`);
-
-    function connect() {
-      s = new net.Socket();
-      s.connect(port, address, () => {
-        s.destroy();
-        console.log(`"${address}:${port}" is up`);
-        observer.next('ok');
-        observer.complete();
-      });
-      s.on('error', () => {
-        s.destroy();
-        setTimeout(connect, 100);
-      });
-      s.setTimeout(100, () => {
-        s.destroy();
-        setTimeout(connect, 1);
-      });
-    }
-
-    connect();
-    return () => {
-      s.destroy();
-    };
-  });
-}
+// configure
 
 const protocol = 'http';
 const devHost = process.env.DEV_SERVER_HOST || 'localhost';
@@ -49,47 +19,13 @@ const appHost = process.env.APP_SERVER_HOST || 'localhost';
 const appPort = process.env.APP_SERVER_PORT || 8080;
 
 const isHot = process.env.HOT === '1';
+const isSSR = process.env.SSR === '1';
 
-const devServerConfig = isHot
+const frontendConfig = isHot
   ? require('./webpack-hot-dev-server.config.js')
   : require('./webpack-dev-server.config.js');
 
-const backendConfig = require('./webpack-watch-server.config.js');
-
-const devClient = [
-  `${require.resolve('webpack-dev-server/client/')}?${protocol}://${devHost}:${
-    devPort
-  }`,
-];
-
-if (isHot) {
-  devClient.push(require.resolve('webpack/hot/dev-server'));
-}
-
-if (
-  typeof devServerConfig.entry === 'object' &&
-  !Array.isArray(devServerConfig.entry)
-) {
-  Object.keys(devServerConfig.entry).forEach(key => {
-    devServerConfig.entry[key] = devClient.concat(devServerConfig.entry[key]);
-  });
-} else {
-  devServerConfig.entry = devClient.concat(devServerConfig.entry);
-}
-
-const frontStatus$ = new ReplaySubject();
-const frontEndCompiler = webpack(devServerConfig);
-frontEndCompiler.plugin('compile', () =>
-  frontStatus$.next({ status: 'compile' })
-);
-frontEndCompiler.plugin('invalid', () =>
-  frontStatus$.next({ status: 'invalid' })
-);
-frontEndCompiler.plugin('done', stats =>
-  frontStatus$.next({ status: 'done', stats })
-);
-
-const devServer = new WebpackDevServer(frontEndCompiler, {
+const devServerConfig = {
   hot: isHot,
   compress: false,
   watchOptions: {
@@ -97,8 +33,75 @@ const devServer = new WebpackDevServer(frontEndCompiler, {
   },
   headers: { 'Access-Control-Allow-Origin': '*' },
   publicPath: '/_assets/',
-  stats: Object.assign({ colors: true }, devServerConfig.devServer.stats),
-});
+  stats: Object.assign({ colors: true }, frontendConfig.devServer.stats),
+};
+
+const devClient = [
+  `${require.resolve('webpack-dev-server/client/')}?${protocol}://${devHost}:${
+    devPort
+  }`,
+];
+
+if (devServerConfig.hot) {
+  devClient.push(require.resolve('webpack/hot/dev-server'));
+}
+
+// append webpack dev server client to fronend entrypoints
+if (
+  typeof frontendConfig.entry === 'object' &&
+  !Array.isArray(frontendConfig.entry)
+) {
+  Object.keys(frontendConfig.entry).forEach(key => {
+    frontendConfig.entry[key] = devClient.concat(frontendConfig.entry[key]);
+  });
+} else {
+  frontendConfig.entry = devClient.concat(frontendConfig.entry);
+}
+
+const backendConfig = require('./webpack-watch-server.config.js');
+// remove not used entry point to minimize build time
+delete backendConfig.entry[isSSR ? 'nossr' : 'ssr'];
+
+const backendWatchOptions = {
+  aggregateTimeout: 300,
+};
+
+const nodemonConfig = {
+  restartable: false,
+  execMap: {
+    js: 'node',
+  },
+  script: path.join(__dirname, '..', 'server'),
+  ignore: ['*'],
+  watch: [],
+  ext: 'noop',
+  stdin: false,
+  stdout: true,
+};
+
+// Start dev server
+
+console.log('Starting development server…');
+
+const frontEndCompiler = webpack(frontendConfig);
+
+function observeStatus(compiler) {
+  const status = new Subject();
+  compiler.plugin('compile', () => {
+    status.next({ status: 'compile' });
+  });
+  compiler.plugin('invalid', () => {
+    status.next({ status: 'invalid' });
+  });
+  compiler.plugin('done', stats => {
+    status.next({ status: 'done', stats });
+  });
+  return status;
+}
+
+const frontStatus$ = observeStatus(frontEndCompiler);
+
+const devServer = new WebpackDevServer(frontEndCompiler, devServerConfig);
 
 const notifications$ = new Subject();
 
@@ -110,74 +113,41 @@ devServer.sockWrite = (sockets, type, data) => {
 
 devServer.listen(devPort, devHost, () => {});
 
-const withSSR = process.env.SSR === '1';
+const backendCompiler = webpack(backendConfig);
 
-if (withSSR) {
-  delete backendConfig.entry.nossr;
-} else {
-  delete backendConfig.entry.ssr;
-}
+backendCompiler.watch(backendWatchOptions, (err, stats) => {
+  if (err) {
+    console.log('Error', err);
+  } else {
+    console.log(
+      stats.toString(
+        Object.assign({ colors: true }, backendConfig.devServer.stats)
+      )
+    );
+  }
+});
+
+const backendStatus$ = observeStatus(backendCompiler);
 
 const nodemonStart$ = new Subject();
 
 function startServer() {
-  nodemon({
-    restartable: false,
-    execMap: {
-      js: 'node',
-    },
-    script: path.join(__dirname, '..', 'server'),
-    ignore: ['*'],
-    watch: [],
-    ext: 'noop',
-    stdin: false,
-    stdout: true,
-  }).on('start', () => {
+  nodemon(nodemonConfig).on('start', () => {
     nodemonStart$.next('start');
   });
 }
-
-const backendStatus$ = new ReplaySubject();
-
-const backendCompiler = webpack(backendConfig);
-backendCompiler.watch(
-  {
-    aggregateTimeout: 300,
-  },
-  (err, stats) => {
-    if (err) {
-      console.log('Error', err);
-    } else {
-      console.log(
-        stats.toString(
-          Object.assign({ colors: true }, backendConfig.devServer.stats)
-        )
-      );
-    }
-  }
-);
-
-backendCompiler.plugin('compile', () =>
-  backendStatus$.next({ status: 'compile' })
-);
-backendCompiler.plugin('invalid', () =>
-  backendStatus$.next({ status: 'invalid' })
-);
-backendCompiler.plugin('done', stats =>
-  backendStatus$.next({ status: 'done', stats })
-);
 
 Observable.combineLatest(
   frontStatus$.filter(({ status }) => status === 'done').first(),
   backendStatus$.filter(({ status }) => status === 'done').first(),
   startServer
 ).forEach(() => {
-  console.log('Starting dev server');
+  console.log('Starting server');
   nodemonStart$
     .first()
     .flatMap(() => waitForPort(appPort, appHost))
     .forEach(() => {
-      console.log('Dev server is ready');
+      console.log('Server is ready');
     });
 });
 
@@ -185,9 +155,13 @@ const isReady$ = backendStatus$
   .switchMap(({ status }) => {
     if (status === 'done') {
       nodemon.restart();
+      console.log('Restarting server');
       return nodemonStart$
         .first()
         .flatMap(() => waitForPort(appPort, appHost))
+        .do(() => {
+          console.log('Server is ready');
+        })
         .map(() => true);
     }
     return [false];
