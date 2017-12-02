@@ -9,6 +9,7 @@
     "jest": true,
     "node": true
   },
+  "parser": "babel-eslint",
   "plugins": [
     "prettier"
   ],

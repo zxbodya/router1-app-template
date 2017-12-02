@@ -318,7 +318,11 @@ module.exports = function makeWebpackConfig(options) {
       loader: 'babel-loader',
       options: {
         presets: ['react'],
-        plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
+        plugins: [
+          'babel-plugin-transform-es2015-modules-commonjs',
+          'transform-class-properties',
+          'transform-object-rest-spread',
+        ],
         babelrc: false,
       },
     };
@@ -329,13 +333,18 @@ module.exports = function makeWebpackConfig(options) {
         presets: [
           'react',
           [
-            'es2015',
+            'env',
             {
               modules: false,
             },
           ],
         ],
-        plugins: ['transform-runtime', 'react-hot-loader/babel'],
+        plugins: [
+          'transform-runtime',
+          'transform-class-properties',
+          'transform-object-rest-spread',
+          'react-hot-loader/babel',
+        ],
       },
     };
   } else {
@@ -363,7 +372,7 @@ module.exports = function makeWebpackConfig(options) {
       extensions: ['.web.js', '.js', '.jsx'],
       mainFields: (options.isServer ? [] : ['browser']).concat(
         'module',
-        'jsnext:main',
+        // 'jsnext:main',
         'main'
       ),
       alias,
