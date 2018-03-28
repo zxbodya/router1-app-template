@@ -4,3 +4,4 @@
 /build
 /public/_assets
 /.env
+/yarn-error.log

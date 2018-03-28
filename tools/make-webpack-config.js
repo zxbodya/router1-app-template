@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = function makeWebpackConfig(options) {
   let entry;
@@ -205,10 +205,6 @@ module.exports = function makeWebpackConfig(options) {
     plugins.push(statsPlugin);
   }
 
-  if (options.minimize) {
-    plugins.push(new webpack.optimize.ModuleConcatenationPlugin());
-  }
-
   const alias = {};
 
   const rxPaths = require('rxjs/_esm5/path-mapping');
@@ -262,10 +258,7 @@ module.exports = function makeWebpackConfig(options) {
     if (options.isServer) {
       loader.use = ['null-loader'];
     } else if (options.separateStylesheet) {
-      loader.loader = ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: loaderIn.use,
-      });
+      loader.loader = [MiniCssExtractPlugin.loader].concat(loaderIn.use);
     } else {
       loader.use = ['style-loader', ...loaderIn.use];
     }
@@ -274,10 +267,11 @@ module.exports = function makeWebpackConfig(options) {
 
   if (options.separateStylesheet && !options.isServer) {
     plugins.push(
-      new ExtractTextPlugin({
-        filename: `[name].css${
-          options.longTermCaching ? '?[contenthash]' : ''
-        }`,
+      new MiniCssExtractPlugin({
+        // Options similar to the same options in webpackOptions.output
+        // both options are optional
+        filename: `[name].css${options.longTermCaching ? '?[contenthash]' : ''}`,
+        chunkFilename: '[id].css',
       })
     );
   }
@@ -286,22 +280,6 @@ module.exports = function makeWebpackConfig(options) {
       ? JSON.stringify('development')
       : JSON.stringify('production'),
   };
-
-  if (options.minimize) {
-    plugins.push(
-      new webpack.LoaderOptionsPlugin({
-        minimize: true,
-      }),
-      new webpack.optimize.UglifyJsPlugin({
-        // todo: check if needed
-        sourceMap: true,
-        compress: {
-          warnings: false,
-        },
-      }),
-      new webpack.NoEmitOnErrorsPlugin()
-    );
-  }
 
   plugins.push(new webpack.DefinePlugin(definitions));
 
@@ -359,6 +337,7 @@ module.exports = function makeWebpackConfig(options) {
   }
 
   return {
+    mode: options.mode || 'development',
     entry,
     output,
     target: options.isServer ? 'node' : 'web',

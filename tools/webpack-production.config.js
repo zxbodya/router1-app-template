@@ -5,12 +5,13 @@ const config = [
     // commonsChunk: true,
     longTermCaching: true,
     separateStylesheet: true,
-    minimize: true,
+    mode: 'production',
     devtool: 'source-map',
   }),
   makeWebpackConfig({
     isServer: true,
     sourceMapSupport: true,
+    mode: 'production',
     devtool: 'source-map',
   }),
 ];

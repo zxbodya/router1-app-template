@@ -16,8 +16,9 @@ export function createServer(options) {
   const publicPath = stats.publicPath;
 
   const mainArr = [].concat(stats.assetsByChunkName.main);
-  const STYLE_URL = mainArr.length > 1 ? publicPath + mainArr[1] : false;
-  const SCRIPT_URL = publicPath + mainArr[0];
+  const STYLE_URL = mainArr.length > 1 ? publicPath + mainArr[0] : false;
+  const SCRIPT_URL =
+    publicPath + (mainArr.length > 1 ? mainArr[1] : mainArr[0]);
   // var COMMONS_URL = publicPath + [].concat(stats.assetsByChunkName.commons)[0];
 
   app.use(bodyParser.json());
