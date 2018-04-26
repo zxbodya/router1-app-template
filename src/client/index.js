@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { bindCallback } from 'rxjs/observable/bindCallback';
-import { empty } from 'rxjs/observable/empty';
+import { bindCallback, EMPTY } from 'rxjs';
 
 import { createBrowserHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';
@@ -36,7 +35,7 @@ function renderState(state, transition) {
     // forward to new location on same transition
     transition.forward(redirect);
     // since nothing needs to be rendered - return empty observable
-    return empty();
+    return EMPTY;
   }
 
   updatePageMeta(meta);

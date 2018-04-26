@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { of } from 'rxjs/observable/of';
-import { first } from 'rxjs/operators/first';
+import { of } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import { createServerHistory, Router, RouteCollection } from 'router1';
 import { RouterContext } from 'router1-react';

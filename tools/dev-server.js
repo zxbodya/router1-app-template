@@ -5,7 +5,18 @@ const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 const nodemon = require('nodemon');
 
-const { Observable, Subject } = require('rxjs');
+const { combineLatest, Subject } = require('rxjs');
+
+const {
+  first,
+  filter,
+  switchMap,
+  mergeMap,
+  tap,
+  map,
+  distinctUntilChanged,
+  scan,
+} = require('rxjs/operators');
 
 const { waitForPort } = require('./waitForPort');
 
@@ -37,9 +48,9 @@ const devServerConfig = {
 };
 
 const devClient = [
-  `${require.resolve('webpack-dev-server/client/')}?${protocol}://${devHost}:${
-    devPort
-  }`,
+  `${require.resolve(
+    'webpack-dev-server/client/'
+  )}?${protocol}://${devHost}:${devPort}`,
 ];
 
 if (devServerConfig.hot) {
@@ -137,54 +148,56 @@ function startServer() {
   });
 }
 
-Observable.combineLatest(
-  frontStatus$.filter(({ status }) => status === 'done').first(),
-  backendStatus$.filter(({ status }) => status === 'done').first(),
+combineLatest(
+  frontStatus$.pipe(filter(({ status }) => status === 'done'), first()),
+  backendStatus$.pipe(filter(({ status }) => status === 'done'), first()),
   startServer
 ).forEach(() => {
   console.log('Starting server');
   nodemonStart$
-    .first()
-    .flatMap(() => waitForPort(appPort, appHost))
+    .pipe(first(), mergeMap(() => waitForPort(appPort, appHost)))
     .forEach(() => {
       console.log('Server is ready');
     });
 });
 
-const isReady$ = backendStatus$
-  .switchMap(({ status }) => {
+const isReady$ = backendStatus$.pipe(
+  switchMap(({ status }) => {
     if (status === 'done') {
       nodemon.restart();
       console.log('Restarting server');
-      return nodemonStart$
-        .first()
-        .flatMap(() => waitForPort(appPort, appHost))
-        .do(() => {
+      return nodemonStart$.pipe(
+        first(),
+        mergeMap(() => waitForPort(appPort, appHost)),
+        tap(() => {
           console.log('Server is ready');
-        })
-        .map(() => true);
+        }),
+        map(() => true)
+      );
     }
     return [false];
-  })
-  .distinctUntilChanged();
+  }),
+  distinctUntilChanged()
+);
 
-notifications$
-  .combineLatest(isReady$, (notification, isReady) => ({
-    notification,
-    isReady,
-  }))
-  .scan(
-    ({ buffer, prev }, { notification, isReady }) => {
-      const nextBuffer =
-        notification !== prev ? [...buffer, notification] : buffer;
-      if (isReady) {
-        return { emit: nextBuffer, buffer: [], prev: notification };
-      }
-      return { buffer: nextBuffer, prev: notification };
-    },
-    { buffer: [] }
+combineLatest(notifications$, isReady$, (notification, isReady) => ({
+  notification,
+  isReady,
+}))
+  .pipe(
+    scan(
+      ({ buffer, prev }, { notification, isReady }) => {
+        const nextBuffer =
+          notification !== prev ? [...buffer, notification] : buffer;
+        if (isReady) {
+          return { emit: nextBuffer, buffer: [], prev: notification };
+        }
+        return { buffer: nextBuffer, prev: notification };
+      },
+      { buffer: [] }
+    ),
+    filter(({ emit }) => !!emit)
   )
-  .filter(({ emit }) => !!emit)
   .forEach(({ emit }) =>
     emit.forEach(v => {
       try {

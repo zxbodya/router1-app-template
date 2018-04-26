@@ -1,4 +1,4 @@
-import { of } from 'rxjs/observable/of';
+import { of } from 'rxjs';
 import toObservable from './toObservable';
 
 describe('toObservable', () => {
