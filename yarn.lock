@@ -8670,6 +8670,17 @@ webpack-log@^1.0.1, webpack-log@^1.1.1, webpack-log@^1.1.2:
     loglevelnext "^1.0.1"
     uuid "^3.1.0"
 
+webpack-serve-ssr-helper@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/webpack-serve-ssr-helper/-/webpack-serve-ssr-helper-0.1.0.tgz#49cbb9e37f1308321f5f68c24910890ad7e132b7"
+  dependencies:
+    http-proxy-middleware "^0.18.0"
+    koa-connect "^2.0.1"
+    nodemon "^1.17.4"
+    rxjs "^6.1.0"
+    webpack "^4.8.2"
+    webpack-serve "^0.3.2"
+
 webpack-serve@^0.3.2:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/webpack-serve/-/webpack-serve-0.3.2.tgz#9cfd823dd570438d8cf362e70586bc54af1f0c92"
