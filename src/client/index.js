@@ -50,10 +50,12 @@ function afterRender(stateHandler, { state, transition }) {
   // after state was rendered
   if (state.onBeforeUnload) {
     // if state provides before unload hook - replace default with it
+    // eslint-disable-next-line no-param-reassign
     stateHandler.onBeforeUnload = state.onBeforeUnload;
   }
   if (state.onHashChange) {
     // if state provides hash change handler - replace default with it
+    // eslint-disable-next-line no-param-reassign
     stateHandler.onHashChange = state.onHashChange;
   }
   // do required scrolling after rendering
