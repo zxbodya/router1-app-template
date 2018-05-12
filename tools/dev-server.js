@@ -96,21 +96,21 @@ console.log('Starting development server…');
 
 const frontEndCompiler = webpack(frontendConfig);
 
-function observeStatus(compiler) {
+function observeStatus(compiler, name) {
   const status = new Subject();
-  compiler.plugin('compile', () => {
+  compiler.hooks.compile.tap(name, () => {
     status.next({ status: 'compile' });
   });
-  compiler.plugin('invalid', () => {
+  compiler.hooks.invalid.tap(name, () => {
     status.next({ status: 'invalid' });
   });
-  compiler.plugin('done', stats => {
+  compiler.hooks.done.tap(name, stats => {
     status.next({ status: 'done', stats });
   });
   return status;
 }
 
-const frontStatus$ = observeStatus(frontEndCompiler);
+const frontStatus$ = observeStatus(frontEndCompiler, 'dev-server-sync');
 
 const devServer = new WebpackDevServer(frontEndCompiler, devServerConfig);
 
@@ -138,7 +138,7 @@ backendCompiler.watch(backendWatchOptions, (err, stats) => {
   }
 });
 
-const backendStatus$ = observeStatus(backendCompiler);
+const backendStatus$ = observeStatus(backendCompiler, 'dev-server-sync');
 
 const nodemonStart$ = new Subject();
 

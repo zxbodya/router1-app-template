@@ -151,7 +151,7 @@ module.exports = function makeWebpackConfig(options) {
     // /node_modules[\\/]react(-router)?[\\/]/,
   ];
   const assetsPlugin = function assetsPlugin() {
-    this.plugin('done', stats => {
+    this.hooks.done.tap('assetsPlugin', stats => {
       const jsonStats = stats.toJson({
         hash: true,
         publicPath: true,
@@ -176,7 +176,7 @@ module.exports = function makeWebpackConfig(options) {
     });
   };
   const statsPlugin = function statsPlugin() {
-    this.plugin('done', stats => {
+    this.hooks.done.tap('statsPlugin', stats => {
       const jsonStats = stats.toJson({
         chunkModules: true,
         exclude: excludeFromStats,
