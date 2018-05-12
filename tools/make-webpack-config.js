@@ -126,7 +126,7 @@ module.exports = function makeWebpackConfig(options) {
   ];
 
   const devHost = process.env.DEV_SERVER_HOST || 'localhost';
-  const devPort = process.env.DEV_SERVER_PORT || 2992;
+  const devPort = process.env.DEV_SERVER_PORT || 8080;
 
   const publicPath = options.devServer
     ? `http://${devHost}:${devPort}/_assets/`
@@ -270,7 +270,9 @@ module.exports = function makeWebpackConfig(options) {
       new MiniCssExtractPlugin({
         // Options similar to the same options in webpackOptions.output
         // both options are optional
-        filename: `[name].css${options.longTermCaching ? '?[contenthash]' : ''}`,
+        filename: `[name].css${
+          options.longTermCaching ? '?[contenthash]' : ''
+        }`,
         chunkFilename: '[id].css',
       })
     );
@@ -283,9 +285,9 @@ module.exports = function makeWebpackConfig(options) {
 
   plugins.push(new webpack.DefinePlugin(definitions));
 
-  if (options.hotComponents) {
-    plugins.push(new webpack.HotModuleReplacementPlugin());
-  }
+  // if (options.hotComponents) {
+  //   plugins.push(new webpack.HotModuleReplacementPlugin());
+  // }
 
   const babelLoader = {
     test: /\.jsx?$/,

@@ -15,7 +15,11 @@ export function createServer(options) {
 
   const publicPath = stats.publicPath;
 
-  const mainArr = [].concat(stats.assetsByChunkName.main);
+  const mainArr = []
+    .concat(stats.assetsByChunkName.main)
+    // workaround to skip webpack hot update bundles while running dev server
+    .filter(n => !/\.hot-update/.test(n));
+
   const STYLE_URL = mainArr.length > 1 ? publicPath + mainArr[0] : false;
   const SCRIPT_URL =
     publicPath + (mainArr.length > 1 ? mainArr[1] : mainArr[0]);

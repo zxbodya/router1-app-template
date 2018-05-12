@@ -29,8 +29,9 @@ Actually it is not much different from all other boilerplates - same tools and s
 But there is one thing that makes it different - there is helper script(`dev-server.js`),
 to keep server side and client side parts reloads in sync. 
 
-When something was updated client side and needs to be reloaded, before sending reload command,
-if server was also changed, it ensures that it is already up and running.
+It a wrapper around webpack compiler, webpack-serve and a nodemon,
+it adds proxy into webpack-serve that ensures that all reloads from browser are loading data from recent
+server-side bundle - it will wait before request processing if new build is in progress or when server is not ready yet.       
 
 In result it removes some frustration, especially when changing code shared between server and client parts.
 
@@ -44,13 +45,10 @@ In result it removes some frustration, especially when changing code shared betw
 
 To customize host and ports used by application - use environment variables:
 
-- `DEV_SERVER_PORT` - port used by dev server, `2992` by default
-- `DEV_SERVER_HOST` - host where dev server is running, `localhost` by default
-
-Same thing about app itself:
-
-- `APP_SERVER_HOST` - host where application is running, `localhost` by default (address where app is accessible) 
-- `APP_SERVER_PORT` - port user by application, `8080` by default
+- `DEV_SERVER_PORT` - port used by dev server, `8080` by default
+- `DEV_SERVER_WS_PORT` - port used for webpack notifications websocket, `8081` by default
+- `DEV_SERVER_HOST` - host where dev server is running, `localhost` by default 
+- `APP_SERVER_PORT` - port user by application, `8082` by default. Is passed as `PORT` environment variable into application.   
 
 **if you have different application host and port different than above - be sure to specify them in environment**
 

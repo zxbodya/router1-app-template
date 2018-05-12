@@ -2,10 +2,12 @@
 require('dotenv').config({ silent: true });
 const path = require('path');
 const webpack = require('webpack');
-const WebpackDevServer = require('webpack-dev-server');
+const serve = require('webpack-serve');
+const convert = require('koa-connect');
+const proxy = require('http-proxy-middleware');
 const nodemon = require('nodemon');
 
-const { combineLatest, Subject } = require('rxjs');
+const { combineLatest, Subject, BehaviorSubject } = require('rxjs');
 
 const {
   first,
@@ -15,19 +17,18 @@ const {
   tap,
   map,
   distinctUntilChanged,
-  scan,
 } = require('rxjs/operators');
 
 const { waitForPort } = require('./waitForPort');
 
 // configure
 
-const protocol = 'http';
 const devHost = process.env.DEV_SERVER_HOST || 'localhost';
-const devPort = process.env.DEV_SERVER_PORT || 2992;
+const devPort = process.env.DEV_SERVER_PORT || 8080;
+const devWsPort = process.env.DEV_SERVER_WS_PORT || 8081;
 
-const appHost = process.env.APP_SERVER_HOST || 'localhost';
-const appPort = process.env.APP_SERVER_PORT || 8080;
+const appHost = 'localhost';
+const appPort = process.env.APP_SERVER_PORT || 8082;
 
 const isHot = process.env.HOT === '1';
 const isSSR = process.env.SSR === '1';
@@ -46,28 +47,6 @@ const devServerConfig = {
   publicPath: '/_assets/',
   stats: Object.assign({ colors: true }, frontendConfig.devServer.stats),
 };
-
-const devClient = [
-  `${require.resolve(
-    'webpack-dev-server/client/'
-  )}?${protocol}://${devHost}:${devPort}`,
-];
-
-if (devServerConfig.hot) {
-  devClient.push(require.resolve('webpack/hot/dev-server'));
-}
-
-// append webpack dev server client to fronend entrypoints
-if (
-  typeof frontendConfig.entry === 'object' &&
-  !Array.isArray(frontendConfig.entry)
-) {
-  Object.keys(frontendConfig.entry).forEach(key => {
-    frontendConfig.entry[key] = devClient.concat(frontendConfig.entry[key]);
-  });
-} else {
-  frontendConfig.entry = devClient.concat(frontendConfig.entry);
-}
 
 const backendConfig = require('./webpack-watch-server.config.js');
 // remove not used entry point to minimize build time
@@ -88,6 +67,9 @@ const nodemonConfig = {
   ext: 'noop',
   stdin: false,
   stdout: true,
+  env: {
+    PORT: appPort,
+  },
 };
 
 // Start dev server
@@ -111,19 +93,6 @@ function observeStatus(compiler, name) {
 }
 
 const frontStatus$ = observeStatus(frontEndCompiler, 'dev-server-sync');
-
-const devServer = new WebpackDevServer(frontEndCompiler, devServerConfig);
-
-const notifications$ = new Subject();
-
-const sockWrite = devServer.sockWrite;
-
-devServer.sockWrite = (sockets, type, data) => {
-  notifications$.next({ sockets, type, data });
-};
-
-devServer.listen(devPort, devHost, () => {});
-
 const backendCompiler = webpack(backendConfig);
 
 backendCompiler.watch(backendWatchOptions, (err, stats) => {
@@ -152,63 +121,61 @@ combineLatest(
   frontStatus$.pipe(filter(({ status }) => status === 'done'), first()),
   backendStatus$.pipe(filter(({ status }) => status === 'done'), first()),
   startServer
-).forEach(() => {
+).subscribe(() => {
   console.log('Starting server');
   nodemonStart$
     .pipe(first(), mergeMap(() => waitForPort(appPort, appHost)))
-    .forEach(() => {
+    .subscribe(() => {
       console.log('Server is ready');
     });
 });
 
-const isReady$ = backendStatus$.pipe(
-  switchMap(({ status }) => {
-    if (status === 'done') {
-      nodemon.restart();
-      console.log('Restarting server');
-      return nodemonStart$.pipe(
-        first(),
-        mergeMap(() => waitForPort(appPort, appHost)),
-        tap(() => {
-          console.log('Server is ready');
-        }),
-        map(() => true)
-      );
-    }
-    return [false];
-  }),
-  distinctUntilChanged()
-);
+const isReady$ = new BehaviorSubject(false);
 
-combineLatest(notifications$, isReady$, (notification, isReady) => ({
-  notification,
-  isReady,
-}))
+backendStatus$
   .pipe(
-    scan(
-      ({ buffer, prev }, { notification, isReady }) => {
-        const nextBuffer =
-          notification !== prev ? [...buffer, notification] : buffer;
-        if (isReady) {
-          return { emit: nextBuffer, buffer: [], prev: notification };
-        }
-        return { buffer: nextBuffer, prev: notification };
-      },
-      { buffer: [] }
-    ),
-    filter(({ emit }) => !!emit)
-  )
-  .forEach(({ emit }) =>
-    emit.forEach(v => {
-      try {
-        const { sockets, type, data } = v;
-        sockWrite(sockets, type, data);
-        console.log('websocket notification, type:', type);
-      } catch (e) {
-        console.log('skip, websocket notification');
+    switchMap(({ status }) => {
+      if (status === 'done') {
+        nodemon.restart();
+        console.log('Restarting server');
+        return nodemonStart$.pipe(
+          first(),
+          mergeMap(() => waitForPort(appPort, appHost)),
+          tap(() => {
+            console.log('Server is ready');
+          }),
+          map(() => true)
+        );
       }
-    })
-  );
+      return [false];
+    }),
+    distinctUntilChanged()
+  )
+  .subscribe(isReady$);
+
+serve({
+  compiler: frontEndCompiler,
+  dev: devServerConfig,
+  port: devPort,
+  host: devHost,
+  clipboard: false,
+  hot: {
+    hot: isHot,
+    port: devWsPort,
+  },
+  add: (app, middleware) => {
+    const p = convert(proxy('/', { target: `http://${appHost}:${appPort}` }));
+    // since we're manipulating the order of middleware added, we need to handle
+    // adding these two internal middleware functions.
+    middleware.webpack();
+    middleware.content();
+
+    app.use(async (ctx, next) => {
+      await isReady$.pipe(filter(v => v), first()).toPromise();
+      return p(ctx, next);
+    });
+  },
+});
 
 // workaround for nodemon
 process.once('SIGINT', () => {
