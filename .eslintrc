@@ -46,6 +46,8 @@
         "exports": "always-multiline",
         "functions": "ignore"
       }
-    ]
+    ],
+    "react/destructuring-assignment": 0,
+    "react/jsx-one-expression-per-line": 0
   }
 }

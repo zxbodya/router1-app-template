@@ -47,7 +47,7 @@ startDevServer({
   },
   // webpack-serve
   serveOptions: {
-    dev: {
+    devMiddleware: {
       hot: isHot,
       compress: false,
       watchOptions: {
@@ -60,9 +60,9 @@ startDevServer({
     port: devPort,
     host: devHost,
     clipboard: false,
-    hot: {
-      hot: isHot,
-      port: devWsPort,
+    hotClient: {
+      // hot: isHot,
+      // port: devWsPort,
     },
   },
 });

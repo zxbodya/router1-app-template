@@ -4,7 +4,7 @@ import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
 
-import clientEnvVars from './../client/envVars';
+import clientEnvVars from '../client/envVars';
 
 export function createServer(options) {
   const app = express();
@@ -104,7 +104,10 @@ export function createServer(options) {
         };
         if (view) {
           const stream = ReactDOM.renderToNodeStream(view);
-          stream.pipe(res, { end: false });
+          stream.pipe(
+            res,
+            { end: false }
+          );
           stream.on('end', renderFooter);
         } else {
           renderFooter();
