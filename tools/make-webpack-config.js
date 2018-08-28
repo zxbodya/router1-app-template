@@ -302,6 +302,7 @@ module.exports = function makeWebpackConfig(options) {
           'babel-plugin-transform-es2015-modules-commonjs',
           'transform-class-properties',
           'transform-object-rest-spread',
+          'syntax-dynamic-import',
         ],
         babelrc: false,
       },
@@ -324,6 +325,7 @@ module.exports = function makeWebpackConfig(options) {
           'transform-class-properties',
           'transform-object-rest-spread',
           'react-hot-loader/babel',
+          'syntax-dynamic-import',
         ],
       },
     };
