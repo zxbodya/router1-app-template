@@ -297,12 +297,12 @@ module.exports = function makeWebpackConfig(options) {
     babelLoader.use = {
       loader: 'babel-loader',
       options: {
-        presets: ['react'],
+        presets: ['@babel/preset-react'],
         plugins: [
-          'babel-plugin-transform-es2015-modules-commonjs',
-          'transform-class-properties',
-          'transform-object-rest-spread',
-          'syntax-dynamic-import',
+          '@babel/plugin-transform-runtime',
+          '@babel/plugin-proposal-class-properties',
+          '@babel/plugin-proposal-object-rest-spread',
+          '@babel/plugin-syntax-dynamic-import',
         ],
         babelrc: false,
       },
@@ -312,20 +312,20 @@ module.exports = function makeWebpackConfig(options) {
       loader: 'babel-loader',
       options: {
         presets: [
-          'react',
+          '@babel/preset-react',
           [
-            'env',
+            '@babel/preset-env',
             {
               modules: false,
             },
           ],
         ],
         plugins: [
-          'transform-runtime',
-          'transform-class-properties',
-          'transform-object-rest-spread',
+          '@babel/plugin-transform-runtime',
+          '@babel/plugin-proposal-class-properties',
+          '@babel/plugin-proposal-object-rest-spread',
           'react-hot-loader/babel',
-          'syntax-dynamic-import',
+          '@babel/plugin-syntax-dynamic-import',
         ],
       },
     };

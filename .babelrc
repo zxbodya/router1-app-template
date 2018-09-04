@@ -1,24 +1,24 @@
 {
   "presets": [
-    "react",
+    "@babel/preset-react",
     [
-      "env",
+      "@babel/preset-env",
       {
         "modules": false
       }
     ]
   ],
   "plugins": [
-    "transform-runtime",
-    "transform-class-properties",
-    "transform-object-rest-spread",
-    "syntax-dynamic-import"
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-syntax-dynamic-import"
   ],
   "env": {
     "test": {
       "presets": [
-        "react",
-        "env"
+        "@babel/preset-react",
+        "@babel/preset-env"
       ]
     }
   }
