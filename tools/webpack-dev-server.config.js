@@ -2,7 +2,7 @@ const makeWebpackConfig = require('./make-webpack-config');
 
 const config = makeWebpackConfig({
   devServer: true,
-  devtool: 'inline-source-map', // eval
+  devtool: 'eval-source-map',
   debug: true,
 });
 
