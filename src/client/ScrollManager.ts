@@ -1,24 +1,30 @@
-/* eslint-disable */
-const easeInOutQuad = (t, b, c, d) => {
+type EasingFunction = (t: number, b: number, c: number, d: number) => number;
+
+const easeInOutQuad: EasingFunction = (t, b, c, d) => {
   // t: current time, b: beginning value, c: change in value, d: duration
   // Robert Penner's easeInOutQuad - http://robertpenner.com/easing/
   t /= d / 2;
-  if (t < 1) return c / 2 * t * t + b;
+  if (t < 1) {
+    return (c / 2) * t * t + b;
+  }
   t--;
-  return -c / 2 * (t * (t - 2) - 1) + b;
+  return (-c / 2) * (t * (t - 2) - 1) + b;
 };
-/* eslint-enable */
 
-const noop = () => {};
+const noop = () => undefined;
 
 export class ScrollManager {
-  constructor(options = {}) {
+  public cancelScrollAnimation: () => void;
+  private readonly easing: EasingFunction;
+  private readonly duration: number;
+  private cancel: boolean = false;
+  constructor(options: { easing?: EasingFunction; duration?: number } = {}) {
     this.cancelScrollAnimation = noop;
     this.easing = options.easing || easeInOutQuad;
     this.duration = options.duration || 400;
   }
 
-  animateScroll(left, top, done) {
+  public animateScroll(left: number, top: number, done: () => void) {
     this.cancelScrollAnimation();
 
     const startTime = Date.now();
@@ -27,9 +33,11 @@ export class ScrollManager {
 
     this.cancel = false;
 
-    let id;
+    let id: number;
     const animate = () => {
-      if (this.cancel) return;
+      if (this.cancel) {
+        return;
+      }
       const elapsed = Date.now() - startTime;
       if (this.duration <= elapsed) {
         window.scrollTo(left, top);
@@ -54,7 +62,8 @@ export class ScrollManager {
     };
   }
 
-  scrollTo(left, top, animate) {
+  public scrollTo(left: number, top: number, animate?: boolean) {
+    this.cancelScrollAnimation();
     if (animate) {
       const onWheelListener = () => this.cancelScrollAnimation();
       window.addEventListener('wheel', onWheelListener);
@@ -62,14 +71,17 @@ export class ScrollManager {
         window.removeEventListener('wheel', onWheelListener);
       });
     } else {
-      this.cancelScrollAnimation();
       window.requestAnimationFrame(() => {
         window.scrollTo(left, top);
       });
     }
   }
 
-  scrollToElement(target, animate) {
+  public scrollToElement(target: Element, animate?: boolean) {
+    this.cancelScrollAnimation();
+    if (!target.ownerDocument || !target.ownerDocument.documentElement) {
+      return;
+    }
     const documentElement = target.ownerDocument.documentElement;
     const boundingClientRect = target.getBoundingClientRect();
     this.scrollTo(
@@ -79,7 +91,7 @@ export class ScrollManager {
     );
   }
 
-  scrollToAnchor(anchor, animate) {
+  public scrollToAnchor(anchor: string, animate?: boolean) {
     const target = document.getElementById(anchor);
     if (target) {
       this.scrollToElement(target, animate);

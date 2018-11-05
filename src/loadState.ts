@@ -1,5 +1,5 @@
-import toObservable from './utils/toObservable';
 import notFoundHandler from './notFoundPage/notFoundHandler';
+import toObservable from './utils/toObservable';
 
 export function loadState(transition) {
   let handler;

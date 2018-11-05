@@ -1,3 +1,4 @@
+import { Location } from 'router1/dist/history/history';
 import { ScrollManager } from './ScrollManager';
 
 const sm = new ScrollManager();
@@ -8,7 +9,9 @@ export function scrollAfterRendered(routingResult) {
   const locationHash = routingResult.location.hash;
 
   // case when scrolling was implicitly disabled in state params
-  if (routingResult.location.state.noscroll) return;
+  if (routingResult.location.state.noscroll) {
+    return;
+  }
   // should scroll only on this location sources
   if (locationSource === 'push' || locationSource === 'replace') {
     let target;
@@ -24,8 +27,10 @@ export function scrollAfterRendered(routingResult) {
   }
 }
 
-export function onHashChange({ hash, source }) {
+export function onHashChange({ hash, source }: Location) {
   sm.cancelScrollAnimation();
-  if (source !== 'push' && source !== 'replace') return;
+  if (source !== 'push' && source !== 'replace') {
+    return;
+  }
   sm.scrollToAnchor(hash, true);
 }

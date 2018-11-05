@@ -1,8 +1,8 @@
-/* eslint-disable no-console */
-import ReactDOM from 'react-dom/server';
+/* tslint:disable no-console */
+import bodyParser from 'body-parser';
 import express from 'express';
 import path from 'path';
-import bodyParser from 'body-parser';
+import ReactDOM from 'react-dom/server';
 
 import clientEnvVars from '../client/envVars';
 
@@ -64,6 +64,7 @@ export function createServer(options) {
   }
 
   app.get('/*', (req, res) => {
+    // @ts-ignore
     function sendHtml(error, { view, meta, status, redirect } = {}) {
       if (error) {
         res.status(500);

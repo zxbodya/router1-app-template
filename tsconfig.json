@@ -1,0 +1,37 @@
+{
+  "compileOnSave": false,
+
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    // required to use commonjs export as default
+    "esModuleInterop": true,
+    "jsx": "react",
+    "target": "esnext",
+    "importHelpers": true,
+    "strictNullChecks": true,
+    "pretty": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "typeRoots": ["node_modules/@types"],
+    "lib": [
+      "dom",
+      "es5",
+      "es2015.collection",
+      "es2015.core",
+      "es2015.promise",
+      "es2015.iterable",
+      "es2016.array.include",
+      "es2017"
+    ],
+    "noUnusedLocals": true,
+    // TODO: enable this check
+    // "noUnusedParameters": true,
+    "strict": false
+  },
+  "include": [
+    "typings/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
+}

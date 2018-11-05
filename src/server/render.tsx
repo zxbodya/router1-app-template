@@ -1,15 +1,20 @@
-import React from 'react';
+import * as React from 'react';
 
 import { of } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { createServerHistory, Router, RouteCollection } from 'router1';
+import {
+  createServerHistory,
+  RouteCollection,
+  Router,
+  RouteTransition,
+} from 'router1';
 import { RouterContext } from 'router1-react';
 
-import routes from '../routes';
 import { loadState } from '../loadState';
+import routes from '../routes';
 
-function renderState(state, transition) {
+function renderState(state: any, transition: RouteTransition<any, any, any>) {
   const { view, redirect, status, meta } = state;
 
   if (redirect) {
@@ -30,7 +35,7 @@ function renderState(state, transition) {
 
 const routeCollection = new RouteCollection(routes);
 
-export function render(requestPath, cb) {
+export function render(requestPath: string, cb: any) {
   const history = createServerHistory(requestPath);
 
   const router = new Router({

@@ -1,9 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
 import { bindCallback, EMPTY } from 'rxjs';
 
-import { createBrowserHistory, Router, RouteCollection } from 'router1';
+import { createBrowserHistory, RouteCollection, Router } from 'router1';
 import { RouterContext } from 'router1-react';
 
 import './env';
@@ -11,16 +11,17 @@ import './index.scss';
 
 import routes from '../routes';
 
-import { onHashChange, scrollAfterRendered } from './scrollHelpers';
 import { loadState } from '../loadState';
 import { updatePageMeta } from '../utils/updatePageMeta';
+import { onHashChange, scrollAfterRendered } from './scrollHelpers';
 
 let renderObservable;
 if (process.env.SSR === '1') {
   // hydrate on first render instead of render of next
-  renderObservable = (...agrs) => {
+  renderObservable = (vdom, element) => {
     renderObservable = bindCallback(ReactDOM.render);
-    return bindCallback(ReactDOM.hydrate)(...agrs);
+    // @ts-ignore
+    return bindCallback(ReactDOM.hydrate)(vdom, element);
   };
 } else {
   renderObservable = bindCallback(ReactDOM.render);

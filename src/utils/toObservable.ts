@@ -1,6 +1,6 @@
 import { from, of } from 'rxjs';
 
-export default function(data) {
+export default function(data: any) {
   let t;
   try {
     t = from(data);

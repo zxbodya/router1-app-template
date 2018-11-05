@@ -8,8 +8,8 @@ module.exports = function makeWebpackConfig(options) {
 
   if (options.isServer) {
     entry = {
-      ssr: ['./src/server/ssr.js'],
-      nossr: ['./src/server/nossr.js'],
+      ssr: ['./src/server/ssr'],
+      nossr: ['./src/server/nossr'],
     };
   } else {
     entry = {
@@ -17,7 +17,7 @@ module.exports = function makeWebpackConfig(options) {
         'raf/polyfill',
         'core-js/es6/map',
         'core-js/es6/set',
-        './src/client/index.js',
+        './src/client/index',
       ],
     };
     if (options.hotComponents) {
@@ -290,14 +290,14 @@ module.exports = function makeWebpackConfig(options) {
   // }
 
   const babelLoader = {
-    test: /\.jsx?$/,
+    test: /\.(?:j|t)sx?$/,
     exclude: /node_modules/,
   };
   if (options.isServer) {
     babelLoader.use = {
       loader: 'babel-loader',
       options: {
-        presets: ['@babel/preset-react'],
+        presets: ['@babel/preset-react', '@babel/preset-typescript'],
         plugins: [
           '@babel/plugin-transform-runtime',
           '@babel/plugin-proposal-class-properties',
@@ -319,6 +319,7 @@ module.exports = function makeWebpackConfig(options) {
               modules: false,
             },
           ],
+          '@babel/preset-typescript',
         ],
         plugins: [
           '@babel/plugin-transform-runtime',
@@ -352,7 +353,7 @@ module.exports = function makeWebpackConfig(options) {
     externals,
     resolve: {
       modules: ['web_modules', 'node_modules'],
-      extensions: ['.web.js', '.js', '.jsx'],
+      extensions: ['.web.js', '.js', '.jsx', '.ts', '.tsx'],
       mainFields: (options.isServer ? [] : ['browser']).concat(
         'module',
         // 'jsnext:main',

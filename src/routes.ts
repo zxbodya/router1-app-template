@@ -1,5 +1,5 @@
-import homeHandler from './homePage/homeHandler';
 import contactHandler from './contactPage/contactHandler';
+import homeHandler from './homePage/homeHandler';
 
 export default [
   {
