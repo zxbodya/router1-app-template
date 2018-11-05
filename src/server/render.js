@@ -18,7 +18,11 @@ function renderState(state, transition) {
   }
 
   return of({
-    view: <RouterContext router={transition.router}>{view}</RouterContext>,
+    view: (
+      <RouterContext.Provider value={transition.router}>
+        {view}
+      </RouterContext.Provider>
+    ),
     meta,
     status,
   });

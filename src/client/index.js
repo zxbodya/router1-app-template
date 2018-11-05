@@ -41,7 +41,9 @@ function renderState(state, transition) {
   updatePageMeta(meta);
 
   return renderObservable(
-    <RouterContext router={transition.router}>{view}</RouterContext>,
+    <RouterContext.Provider value={transition.router}>
+      {view}
+    </RouterContext.Provider>,
     appElement
   );
 }
@@ -75,14 +77,7 @@ const router = new Router({
   afterRender,
 });
 
-window.onbeforeunload = e => {
-  const returnValue = router.onBeforeUnload();
-  if (returnValue) {
-    e.returnValue = returnValue;
-    return returnValue;
-  }
-  return undefined;
-};
+window.onbeforeunload = router.onBeforeUnload;
 
 router.renderResult().forEach(() => {
   // pageview
