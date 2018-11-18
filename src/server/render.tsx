@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 import {
@@ -11,15 +11,27 @@ import {
 } from 'router1';
 import { RouterContext } from 'router1-react';
 
+import { ReactElement } from 'react';
 import { loadState } from '../loadState';
 import routes from '../routes';
+import { RouteState } from '../types';
 
-function renderState(state: any, transition: RouteTransition<any, any, any>) {
+interface RenderResult {
+  status?: number;
+  meta?: object;
+  redirect?: string;
+  view?: ReactElement<any>;
+}
+
+function renderState(
+  state: RouteState,
+  transition: RouteTransition<RouteState, RenderResult, any>
+): Observable<RenderResult> {
   const { view, redirect, status, meta } = state;
 
   if (redirect) {
     // return redirect to be sent for user
-    return of({ redirect, status });
+    return of<RenderResult>({ redirect, status });
   }
 
   return of({
@@ -38,7 +50,7 @@ const routeCollection = new RouteCollection(routes);
 export function render(requestPath: string, cb: any) {
   const history = createServerHistory(requestPath);
 
-  const router = new Router({
+  const router: Router<RouteState, RenderResult, any> = new Router({
     history,
     routeCollection,
     loadState,

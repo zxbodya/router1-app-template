@@ -25,9 +25,8 @@
       "es2017"
     ],
     "noUnusedLocals": true,
-    // TODO: enable this check
-    // "noUnusedParameters": true,
-    "strict": false
+    "noUnusedParameters": true,
+    "strict": true
   },
   "include": [
     "typings/**/*.d.ts",

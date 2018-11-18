@@ -3,7 +3,14 @@ import * as ReactDOM from 'react-dom';
 
 import { bindCallback, EMPTY } from 'rxjs';
 
-import { createBrowserHistory, RouteCollection, Router } from 'router1';
+import {
+  createBrowserHistory,
+  RouteCollection,
+  Router,
+  RouteTransition,
+  ScrollBehavior,
+  ScrollManager,
+} from 'router1';
 import { RouterContext } from 'router1-react';
 
 import './env';
@@ -12,13 +19,13 @@ import './index.scss';
 import routes from '../routes';
 
 import { loadState } from '../loadState';
+import { RouteState } from '../types';
 import { updatePageMeta } from '../utils/updatePageMeta';
-import { onHashChange, scrollAfterRendered } from './scrollHelpers';
 
-let renderObservable;
+let renderObservable: any;
 if (process.env.SSR === '1') {
   // hydrate on first render instead of render of next
-  renderObservable = (vdom, element) => {
+  renderObservable = (vdom: any, element: any) => {
     renderObservable = bindCallback(ReactDOM.render);
     // @ts-ignore
     return bindCallback(ReactDOM.hydrate)(vdom, element);
@@ -29,7 +36,10 @@ if (process.env.SSR === '1') {
 
 const appElement = document.getElementById('app');
 
-function renderState(state, transition) {
+const renderState = (
+  state: RouteState,
+  transition: RouteTransition<RouteState, any, any>
+) => {
   const { view, redirect, meta } = state;
 
   if (redirect) {
@@ -39,7 +49,7 @@ function renderState(state, transition) {
     return EMPTY;
   }
 
-  updatePageMeta(meta);
+  updatePageMeta(meta || {});
 
   return renderObservable(
     <RouterContext.Provider value={transition.router}>
@@ -47,35 +57,18 @@ function renderState(state, transition) {
     </RouterContext.Provider>,
     appElement
   );
-}
-
-function afterRender(stateHandler, { state, transition }) {
-  // after state was rendered
-  if (state.onBeforeUnload) {
-    // if state provides before unload hook - replace default with it
-    // eslint-disable-next-line no-param-reassign
-    stateHandler.onBeforeUnload = state.onBeforeUnload;
-  }
-  if (state.onHashChange) {
-    // if state provides hash change handler - replace default with it
-    // eslint-disable-next-line no-param-reassign
-    stateHandler.onHashChange = state.onHashChange;
-  }
-  // do required scrolling after rendering
-  scrollAfterRendered(transition);
-}
+};
 
 const routeCollection = new RouteCollection(routes);
 
 const history = createBrowserHistory();
 
-const router = new Router({
+const router: Router<RouteState, any, any> = new Router({
   history,
   routeCollection,
   loadState,
-  onHashChange,
   renderState,
-  afterRender,
+  scrollBehavior: new ScrollBehavior(new ScrollManager()),
 });
 
 window.onbeforeunload = router.onBeforeUnload;

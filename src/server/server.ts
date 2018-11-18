@@ -6,10 +6,14 @@ import ReactDOM from 'react-dom/server';
 
 import clientEnvVars from '../client/envVars';
 
-export function createServer(options) {
+export function createServer(
+  render: (
+    path: string,
+    callback: (err?: Error | null, result?: any) => any
+  ) => any
+) {
   const app = express();
 
-  const render = options.render;
   // eslint-disable-next-line import/no-unresolved
   const stats = require('../build/assets.json');
 
@@ -54,7 +58,7 @@ export function createServer(options) {
   //   }(app.get('etag fn'))
   // ));
 
-  const envParams = {};
+  const envParams: { [k: string]: string | undefined } = {};
 
   for (let i = 0, l = clientEnvVars.length; i < l; i += 1) {
     const key = clientEnvVars[i];
