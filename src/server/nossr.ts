@@ -1,5 +1,5 @@
 import { createServer } from './server';
 
-createServer((requestPath, cb) => {
+createServer((_requestPath, cb) => {
   cb(null, { view: '', meta: { title: '', description: '' } });
 });

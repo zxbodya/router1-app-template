@@ -3,12 +3,19 @@
     "tslint:recommended",
     "tslint-config-prettier"
   ],
-  "rulesDirectory": ["tslint-plugin-prettier"],
+  "rulesDirectory": [
+    "tslint-plugin-prettier"
+  ],
   "rules": {
     "prettier": true,
     "object-literal-sort-keys": false,
     "interface-name": false,
     "member-ordering": false,
-    "prefer-for-of": false
+    "prefer-for-of": false,
+    "variable-name": {
+      "options": [
+        "allow-leading-underscore"
+      ]
+    }
   }
 }

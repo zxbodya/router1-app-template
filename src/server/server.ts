@@ -40,7 +40,7 @@ export function createServer(
   );
 
   app.use('/', express.static(path.join('public'), {}));
-  app.get('/favicon.ico', (req, res) => {
+  app.get('/favicon.ico', (_req, res) => {
     // used when no favicon file found
     // was added to prevent matching /*
     res.status(404).send();
@@ -88,7 +88,7 @@ export function createServer(
             description: meta.description,
             stylesUrl: STYLE_URL,
           },
-          (err, content) => {
+          (_err, content) => {
             res.write(content);
           }
         );
@@ -101,7 +101,7 @@ export function createServer(
               scriptsUrl: SCRIPT_URL,
               envParams,
             },
-            (err, content) => {
+            (_err, content) => {
               res.write(content);
               res.end();
             }
